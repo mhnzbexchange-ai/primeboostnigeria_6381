@@ -56,7 +56,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         emailRedirectTo: `${siteUrl}/auth/callback`
       }
     });
-    if (error) throw error;
+
+    // Log the response so we can diagnose why emails may not be delivered
+    // (This will appear in the browser console for client-side calls)
+    // eslint-disable-next-line no-console
+    console.log('supabase.signUp response', { data, error });
+
+    if (error) {
+      // surface the server message for easier debugging
+      throw new Error(error.message || 'Sign up failed');
+    }
 
     // Immediately sign out so the user is NOT auto-logged in before email verification.
     await supabase.auth.signOut();
@@ -81,8 +90,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             link: `${siteUrl}/sign-up-login-screen`,
           }),
         });
-      } catch {
+      } catch (err) {
         // Non-blocking: Supabase's own verification email is still sent
+        // eslint-disable-next-line no-console
+        console.warn('branded send-email failed (non-blocking)', err);
       }
     }
 
@@ -116,14 +127,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Resend verification email
   const resendVerificationEmail = async (email: string) => {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-    const { error } = await supabase.auth.resend({
+    const { data, error } = await supabase.auth.resend({
       type: 'signup',
       email,
       options: {
         emailRedirectTo: `${siteUrl}/auth/callback`,
       },
     });
-    if (error) throw error;
+
+    // eslint-disable-next-line no-console
+    console.log('supabase.resend response', { data, error });
+
+    if (error) throw new Error(error.message || 'Failed to resend verification email');
   };
 
   // Sign Out
@@ -142,6 +157,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
     });
+
+    // eslint-disable-next-line no-console
+    console.log('supabase.resetPasswordForEmail response', { error });
+
     if (error) throw error;
 
     // 2. Also send our branded Resend email (best-effort)
@@ -160,8 +179,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           link: resetLink,
         }),
       });
-    } catch {
+    } catch (err) {
       // Non-blocking: Supabase's own reset email is still sent
+      // eslint-disable-next-line no-console
+      console.warn('branded reset send-email failed (non-blocking)', err);
     }
   };
 
