@@ -1,9 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Clock, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, Clock, ShoppingCart, TrendingUp } from 'lucide-react';
 import { ALL_SERVICES, MINIMUM_ORDER_QTY } from '@/lib/pricing';
 
-// Pick 6 featured services for the homepage
 const FEATURED_IDS = [
   'svc-tt-followers',
   'svc-ig-likes',
@@ -13,88 +12,152 @@ const FEATURED_IDS = [
   'svc-yt-views',
 ];
 
-const services = ALL_SERVICES?.filter(s => FEATURED_IDS?.includes(s?.id));
+const services = ALL_SERVICES?.filter((service) =>
+  FEATURED_IDS.includes(service?.id)
+);
 
 export default function HomepageServices() {
   return (
-    <section className="py-24 bg-background">
-      <div className="max-w-screen-xl mx-auto px-4 lg:px-8">
-        <div className="text-center mb-14">
-          <p className="section-label mb-3">WHAT WE OFFER</p>
-          <h2 className="text-hero-md font-bold mb-4">
-            Premium <span className="gold-gradient-text">Promotion Services</span>
+    <section className="bg-background py-24">
+      <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
+
+        {/* Section heading */}
+        <div className="mb-14 text-center">
+          <p className="section-label mb-3">
+            OUR SERVICES
+          </p>
+
+          <h2 className="text-hero-md mb-4 font-bold">
+            Social Media{' '}
+            <span className="gold-gradient-text">
+              Promotion Services
+            </span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto text-sm leading-relaxed">
-            Choose from our range of social media growth services. All delivered fast, safely, and at prices designed for the Nigerian market. Minimum order: {MINIMUM_ORDER_QTY?.toLocaleString()} units.
+
+          <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Choose from our available social media promotion services.
+            Pricing is displayed in Nigerian Naira so you can see the cost
+            before placing an order.
+          </p>
+
+          <p className="mt-3 text-xs text-muted-foreground">
+            Minimum order: {MINIMUM_ORDER_QTY?.toLocaleString()} units
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
-          {services?.map((svc) => (
+        {/* Services */}
+        <div className="mb-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {services?.map((service) => (
             <div
-              key={svc?.id}
-              className="card-base card-gradient-bg group hover:border-primary/40 transition-all duration-300 hover:glow-gold-sm flex flex-col"
+              key={service?.id}
+              className="card-base card-gradient-bg group flex flex-col transition-all duration-300 hover:border-primary/40 hover:glow-gold-sm"
             >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className={`p-2 rounded-lg ${svc?.platformBg}`}>
-                    <span className="text-lg">{svc?.emoji}</span>
+
+              {/* Service header */}
+              <div className="mb-5 flex items-start justify-between gap-4">
+
+                <div className="flex items-center gap-3">
+
+                  <div
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl ${service?.platformBg}`}
+                  >
+                    <span className="text-lg">
+                      {service?.emoji}
+                    </span>
                   </div>
+
                   <div>
-                    <p className={`text-xs font-semibold ${svc?.platformColor}`}>{svc?.platform}</p>
-                    <p className="font-bold text-sm">{svc?.service}</p>
+                    <p
+                      className={`text-xs font-semibold ${service?.platformColor}`}
+                    >
+                      {service?.platform}
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-bold">
+                      {service?.service}
+                    </p>
                   </div>
+
                 </div>
+
                 <div className="text-right">
-                  <p className="text-lg font-extrabold gold-gradient-text tabular-nums">₦{svc?.pricePerUnit?.toLocaleString('en-NG')}</p>
-                  <p className="text-xs text-muted-foreground">{svc?.unit}</p>
+                  <p className="gold-gradient-text text-lg font-extrabold tabular-nums">
+                    ₦
+                    {service?.pricePerUnit?.toLocaleString('en-NG')}
+                  </p>
+
+                  <p className="text-[11px] text-muted-foreground">
+                    {service?.unit}
+                  </p>
                 </div>
+
               </div>
 
               {/* Description */}
-              <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">{svc?.description}</p>
+              <p className="mb-5 flex-1 text-sm leading-relaxed text-muted-foreground">
+                {service?.description}
+              </p>
 
-              {/* Meta */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="bg-muted/30 rounded-lg p-2 text-center">
-                  <Clock size={12} className="text-muted-foreground mx-auto mb-1" />
-                  <p className="text-xs font-semibold">{svc?.delivery}</p>
-                  <p className="text-[10px] text-muted-foreground">Delivery</p>
+              {/* Service information */}
+              <div className="mb-5 grid grid-cols-2 gap-2">
+
+                <div className="rounded-lg bg-muted/30 p-3 text-center">
+                  <Clock
+                    size={14}
+                    className="mx-auto mb-1.5 text-primary"
+                  />
+
+                  <p className="text-xs font-semibold">
+                    {service?.delivery}
+                  </p>
+
+                  <p className="text-[10px] text-muted-foreground">
+                    Estimated start
+                  </p>
                 </div>
-                <div className="bg-muted/30 rounded-lg p-2 text-center">
-                  <TrendingUp size={12} className="text-muted-foreground mx-auto mb-1" />
-                  <p className="text-xs font-semibold tabular-nums">{svc?.minQty?.toLocaleString()}</p>
-                  <p className="text-[10px] text-muted-foreground">Min</p>
+
+                <div className="rounded-lg bg-muted/30 p-3 text-center">
+                  <TrendingUp
+                    size={14}
+                    className="mx-auto mb-1.5 text-primary"
+                  />
+
+                  <p className="text-xs font-semibold tabular-nums">
+                    {service?.minQty?.toLocaleString()}
+                  </p>
+
+                  <p className="text-[10px] text-muted-foreground">
+                    Minimum order
+                  </p>
                 </div>
-                <div className="bg-muted/30 rounded-lg p-2 text-center">
-                  <Users size={12} className="text-muted-foreground mx-auto mb-1" />
-                  <p className="text-xs font-semibold tabular-nums">{svc?.maxQty >= 1000000 ? `${(svc?.maxQty / 1000000)?.toFixed(1)}M` : `${(svc?.maxQty / 1000)?.toFixed(0)}K`}</p>
-                  <p className="text-[10px] text-muted-foreground">Max</p>
-                </div>
+
               </div>
 
-              {/* CTA */}
+              {/* Order button */}
               <Link
                 href="/order-form"
-                className="btn-outline-gold flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold group-hover:btn-primary transition-all"
+                className="btn-outline-gold flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all group-hover:btn-primary"
               >
+                <ShoppingCart size={14} />
                 Order Now
                 <ArrowRight size={14} />
               </Link>
+
             </div>
           ))}
         </div>
 
+        {/* All services */}
         <div className="text-center">
           <Link
             href="/service-catalog"
-            className="btn-primary inline-flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold"
+            className="btn-primary inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold"
           >
-            View All Services
+            Explore All Services
             <ArrowRight size={16} />
           </Link>
         </div>
+
       </div>
     </section>
   );
