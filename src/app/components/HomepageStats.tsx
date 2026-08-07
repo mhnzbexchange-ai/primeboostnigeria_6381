@@ -1,81 +1,108 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Users, ShoppingBag, Star, Zap } from 'lucide-react';
+import React from 'react';
+import {
+  ShieldCheck,
+  CreditCard,
+  Clock,
+  Headphones,
+} from 'lucide-react';
 
-const stats = [
-  { id: 'stat-users', icon: Users, value: 47200, suffix: '+', label: 'Active Users', sub: 'Across Nigeria', color: 'text-blue-400' },
-  { id: 'stat-orders', icon: ShoppingBag, value: 380000, suffix: '+', label: 'Orders Fulfilled', sub: 'Since 2022', color: 'text-green-400' },
-  { id: 'stat-rating', icon: Star, value: 4.9, suffix: '/5', label: 'Average Rating', sub: 'Verified reviews', color: 'text-primary', decimal: true },
-  { id: 'stat-speed', icon: Zap, value: 28, suffix: ' min', label: 'Avg. Start Time', sub: 'Fastest in Nigeria', color: 'text-accent' },
+const highlights = [
+  {
+    id: 'highlight-pricing',
+    icon: CreditCard,
+    title: 'Naira Pricing',
+    description:
+      'View service prices in Nigerian Naira before placing an order.',
+    color: 'text-primary',
+  },
+  {
+    id: 'highlight-order',
+    icon: ShieldCheck,
+    title: 'Secure Ordering',
+    description:
+      'Place orders through your PrimeBoost account without sharing your social media password.',
+    color: 'text-green-400',
+  },
+  {
+    id: 'highlight-delivery',
+    icon: Clock,
+    title: 'Order Tracking',
+    description:
+      'Monitor your order status from your account after placing an order.',
+    color: 'text-blue-400',
+  },
+  {
+    id: 'highlight-support',
+    icon: Headphones,
+    title: 'Customer Support',
+    description:
+      'Contact the PrimeBoost support team if you need help with an order.',
+    color: 'text-purple-400',
+  },
 ];
 
-function useCountUp(target: number, decimal = false, active: boolean) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    const duration = 1800;
-    const steps = 60;
-    const increment = target / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(decimal ? Math.round(current * 10) / 10 : Math.floor(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [target, decimal, active]);
-  return count;
-}
-
-function StatCard({ stat, active }: { stat: typeof stats[0]; active: boolean }) {
-  const count = useCountUp(stat.value, stat.decimal, active);
-  const display = stat.decimal ? count.toFixed(1) : count.toLocaleString('en-NG');
-  return (
-    <div className="card-base card-gradient-bg flex flex-col items-center text-center hover:border-primary/30 transition-all duration-300 hover:glow-gold-sm group">
-      <div className={`p-3 rounded-xl mb-4 bg-muted/50 group-hover:bg-primary/10 transition-colors`}>
-        <stat.icon size={24} className={stat.color} />
-      </div>
-      <div className="tabular-nums text-3xl font-extrabold text-foreground mb-1">
-        {display}{stat.suffix}
-      </div>
-      <div className="font-semibold text-sm mb-1">{stat.label}</div>
-      <div className="text-xs text-muted-foreground">{stat.sub}</div>
-    </div>
-  );
-}
-
 export default function HomepageStats() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setActive(true); },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section ref={ref} className="py-20 bg-secondary/30">
-      <div className="max-w-screen-xl mx-auto px-4 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="section-label mb-3">BY THE NUMBERS</p>
+    <section className="bg-secondary/30 py-20">
+      <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
+
+        {/* Section heading */}
+        <div className="mb-12 text-center">
+
+          <p className="section-label mb-3">
+            WHY PRIMEBOOST
+          </p>
+
           <h2 className="text-hero-md font-bold">
-            Nigeria&apos;s <span className="gold-gradient-text">Most Trusted</span> Platform
+            A Simple Way to Manage
+            <span className="gold-gradient-text">
+              {' '}Social Promotion
+            </span>
           </h2>
+
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            PrimeBoost provides a straightforward way to browse available
+            promotion services, check pricing and manage your orders from
+            one account.
+          </p>
+
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <StatCard key={stat.id} stat={stat} active={active} />
-          ))}
+
+        {/* Highlights */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+          {highlights.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <div
+                key={item.id}
+                className="card-base card-gradient-bg group flex flex-col items-center text-center transition-all duration-300 hover:border-primary/30 hover:glow-gold-sm"
+              >
+
+                <div className="mb-4 rounded-xl bg-muted/50 p-3 transition-colors group-hover:bg-primary/10">
+                  <Icon
+                    size={24}
+                    className={item.color}
+                  />
+                </div>
+
+                <h3 className="mb-2 text-sm font-semibold">
+                  {item.title}
+                </h3>
+
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {item.description}
+                </p>
+
+              </div>
+            );
+          })}
+
         </div>
+
       </div>
     </section>
   );
