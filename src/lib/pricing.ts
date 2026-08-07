@@ -1,6 +1,6 @@
 /**
  * CENTRALIZED PRICING CONFIGURATION
- * All service prices are defined here. To update pricing, edit ONLY this file.
+ * All service prices are defined here.
  * Formula: Total Price = Quantity × pricePerUnit
  */
 
@@ -14,9 +14,16 @@ export interface ServiceDefinition {
   platformColor: string;
   platformBg: string;
   service: string;
-  category: 'followers' | 'likes' | 'views' | 'comments' | 'shares' | 'subscribers' | 'members';
+  category:
+    | 'followers'
+    | 'likes'
+    | 'views'
+    | 'comments'
+    | 'shares'
+    | 'subscribers'
+    | 'members';
   description: string;
-  pricePerUnit: number; // in ₦ (Naira)
+  pricePerUnit: number;
   unit: string;
   delivery: string;
   minQty: number;
@@ -26,6 +33,7 @@ export interface ServiceDefinition {
 }
 
 export const ALL_SERVICES: ServiceDefinition[] = [
+
   // ─── TikTok ───────────────────────────────────────────────────────────────
   {
     id: 'svc-tt-followers',
@@ -35,7 +43,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-red-400/10',
     service: 'Followers',
     category: 'followers',
-    description: 'Real-looking TikTok followers. Gradual delivery to avoid flags. High retention rate.',
+    description:
+      'TikTok follower promotion service for creators and businesses.',
     pricePerUnit: 10,
     unit: 'per follower',
     delivery: '< 1 hour',
@@ -44,6 +53,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'Premium',
   },
+
   {
     id: 'svc-tt-likes',
     platform: 'TikTok',
@@ -52,7 +62,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-red-400/10',
     service: 'Likes',
     category: 'likes',
-    description: 'TikTok video likes from active accounts. Boosts your video in the algorithm.',
+    description:
+      'TikTok likes promotion service for supported videos.',
     pricePerUnit: 10,
     unit: 'per like',
     delivery: '< 15 min',
@@ -61,6 +72,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'High',
   },
+
   {
     id: 'svc-tt-views',
     platform: 'TikTok',
@@ -69,7 +81,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-red-400/10',
     service: 'Views',
     category: 'views',
-    description: 'Increase your TikTok video view count. Fast delivery, great for trending.',
+    description:
+      'TikTok video views promotion service.',
     pricePerUnit: 10,
     unit: 'per view',
     delivery: '< 10 min',
@@ -88,7 +101,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-pink-400/10',
     service: 'Followers',
     category: 'followers',
-    description: 'Premium Instagram followers. Low drop rate, high quality. No password needed.',
+    description:
+      'Instagram follower promotion service. No password required.',
     pricePerUnit: 10,
     unit: 'per follower',
     delivery: '< 2 hours',
@@ -97,6 +111,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'Premium',
   },
+
   {
     id: 'svc-ig-likes',
     platform: 'Instagram',
@@ -105,7 +120,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-pink-400/10',
     service: 'Likes',
     category: 'likes',
-    description: 'High-retention Instagram likes from active accounts. Instant start.',
+    description:
+      'Instagram likes promotion service for supported posts and content.',
     pricePerUnit: 10,
     unit: 'per like',
     delivery: '< 30 min',
@@ -114,6 +130,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'High',
   },
+
   {
     id: 'svc-ig-views',
     platform: 'Instagram',
@@ -122,7 +139,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-pink-400/10',
     service: 'Reel Views',
     category: 'views',
-    description: 'Instagram Reel views to boost your content visibility and reach.',
+    description:
+      'Instagram Reel views promotion service.',
     pricePerUnit: 10,
     unit: 'per view',
     delivery: '< 20 min',
@@ -141,7 +159,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-sky-400/10',
     service: 'Followers',
     category: 'followers',
-    description: 'X followers to boost your social proof and credibility on the platform.',
+    description:
+      'X follower promotion service for supported profiles.',
     pricePerUnit: 10,
     unit: 'per follower',
     delivery: '< 1 hour',
@@ -150,6 +169,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'Premium',
   },
+
   {
     id: 'svc-x-likes',
     platform: 'X (Twitter)',
@@ -158,7 +178,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-sky-400/10',
     service: 'Likes',
     category: 'likes',
-    description: 'X post likes to increase engagement and post visibility.',
+    description:
+      'X post likes promotion service.',
     pricePerUnit: 10,
     unit: 'per like',
     delivery: '< 30 min',
@@ -167,6 +188,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: false,
     quality: 'High',
   },
+
   {
     id: 'svc-x-views',
     platform: 'X (Twitter)',
@@ -175,7 +197,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-sky-400/10',
     service: 'Views',
     category: 'views',
-    description: 'X post views to increase reach and visibility on the platform.',
+    description:
+      'X post views promotion service.',
     pricePerUnit: 10,
     unit: 'per view',
     delivery: '< 20 min',
@@ -194,7 +217,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-yellow-400/10',
     service: 'Followers',
     category: 'followers',
-    description: 'Snapchat followers/friends to grow your audience and increase story reach.',
+    description:
+      'Snapchat follower promotion service.',
     pricePerUnit: 10,
     unit: 'per follower',
     delivery: '< 4 hours',
@@ -203,6 +227,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: false,
     quality: 'Standard',
   },
+
   {
     id: 'svc-sc-views',
     platform: 'Snapchat',
@@ -211,7 +236,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-yellow-400/10',
     service: 'Story Views',
     category: 'views',
-    description: 'Amplify your Snapchat story views for better reach and engagement.',
+    description:
+      'Snapchat story views promotion service.',
     pricePerUnit: 10,
     unit: 'per view',
     delivery: '< 15 min',
@@ -230,7 +256,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-blue-400/10',
     service: 'Channel Members',
     category: 'members',
-    description: 'Grow your Telegram channel fast with targeted Nigerian members.',
+    description:
+      'Telegram channel member promotion service.',
     pricePerUnit: 10,
     unit: 'per member',
     delivery: '< 2 hours',
@@ -239,6 +266,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'Premium',
   },
+
   {
     id: 'svc-tg-group',
     platform: 'Telegram',
@@ -247,7 +275,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-blue-400/10',
     service: 'Group Members',
     category: 'members',
-    description: 'Add members to your Telegram group. Active-looking accounts.',
+    description:
+      'Telegram group member promotion service.',
     pricePerUnit: 10,
     unit: 'per member',
     delivery: '< 3 hours',
@@ -256,6 +285,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: false,
     quality: 'High',
   },
+
   {
     id: 'svc-tg-subscribers',
     platform: 'Telegram',
@@ -264,7 +294,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-blue-400/10',
     service: 'Channel Subscribers',
     category: 'subscribers',
-    description: 'Increase your Telegram channel subscriber count with real-looking accounts.',
+    description:
+      'Telegram channel subscriber promotion service.',
     pricePerUnit: 10,
     unit: 'per subscriber',
     delivery: '< 2 hours',
@@ -283,7 +314,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-red-500/10',
     service: 'Likes',
     category: 'likes',
-    description: 'YouTube video likes to boost engagement signals and algorithm ranking.',
+    description:
+      'YouTube video likes promotion service.',
     pricePerUnit: 15,
     unit: 'per like',
     delivery: '< 1 hour',
@@ -292,6 +324,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'High',
   },
+
   {
     id: 'svc-yt-views',
     platform: 'YouTube',
@@ -300,7 +333,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-red-500/10',
     service: 'Views',
     category: 'views',
-    description: 'YouTube video views to increase watch count and improve discoverability.',
+    description:
+      'YouTube video views promotion service.',
     pricePerUnit: 20,
     unit: 'per view',
     delivery: '< 2 hours',
@@ -309,6 +343,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     popular: true,
     quality: 'Standard',
   },
+
   {
     id: 'svc-yt-subscribers',
     platform: 'YouTube',
@@ -317,7 +352,8 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     platformBg: 'bg-red-500/10',
     service: 'Subscribers',
     category: 'subscribers',
-    description: 'Grow your YouTube channel with real-looking subscribers. Boost credibility fast.',
+    description:
+      'YouTube subscriber promotion service.',
     pricePerUnit: 50,
     unit: 'per subscriber',
     delivery: '< 4 hours',
@@ -329,24 +365,43 @@ export const ALL_SERVICES: ServiceDefinition[] = [
 ];
 
 /** Group services by platform for the order form */
-export const SERVICES_BY_PLATFORM: Record<string, ServiceDefinition[]> = ALL_SERVICES.reduce(
+export const SERVICES_BY_PLATFORM: Record<
+  string,
+  ServiceDefinition[]
+> = ALL_SERVICES.reduce(
   (acc, svc) => {
-    if (!acc[svc.platform]) acc[svc.platform] = [];
+    if (!acc[svc.platform]) {
+      acc[svc.platform] = [];
+    }
+
     acc[svc.platform].push(svc);
+
     return acc;
   },
   {} as Record<string, ServiceDefinition[]>
 );
 
 /** All platform names in display order */
-export const PLATFORMS = ['TikTok', 'Instagram', 'X (Twitter)', 'Snapchat', 'Telegram', 'YouTube'];
+export const PLATFORMS = [
+  'TikTok',
+  'Instagram',
+  'X (Twitter)',
+  'Snapchat',
+  'Telegram',
+  'YouTube',
+];
 
 /** Calculate total price */
-export function calcTotal(pricePerUnit: number, quantity: number): number {
+export function calcTotal(
+  pricePerUnit: number,
+  quantity: number
+): number {
   return Math.round(pricePerUnit * quantity);
 }
 
 /** Get a service by its ID */
-export function getServiceById(id: string): ServiceDefinition | undefined {
+export function getServiceById(
+  id: string
+): ServiceDefinition | undefined {
   return ALL_SERVICES.find((s) => s.id === id);
 }
