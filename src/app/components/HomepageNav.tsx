@@ -1,90 +1,152 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AppLogo from '@/components/ui/AppLogo';
 import { Menu, X } from 'lucide-react';
+
+const navItems = [
+  {
+    label: 'Services',
+    href: '/service-catalog',
+  },
+  {
+    label: 'Pricing',
+    href: '/service-catalog',
+  },
+  {
+    label: 'FAQ',
+    href: '#faq',
+  },
+];
 
 export default function HomepageNav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
-  return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-card/95 backdrop-blur-xl border-b border-border shadow-card' : 'bg-transparent'}`}>
-      <div className="max-w-screen-xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center gap-2">
-          <AppLogo size={36} />
-          <span className="font-bold text-base gold-gradient-text tracking-wide">PrimeBoost Nigeria</span>
-        </div>
+  const closeMobileMenu = () => {
+    setMobileOpen(false);
+  };
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6">
-          {[
-            { label: 'Services', href: '/service-catalog' },
-            { label: 'Pricing', href: '/service-catalog' },
-            { label: 'About', href: '#about' },
-            { label: 'Contact', href: '#contact' },
-          ]?.map((item) => (
+  return (
+    <nav
+      className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'border-b border-border bg-card/95 shadow-card backdrop-blur-xl'
+          : 'bg-background/70 backdrop-blur-md'
+      }`}
+    >
+      <div className="mx-auto flex h-16 max-w-screen-xl items-center justify-between px-4 lg:px-8">
+
+        {/* Logo */}
+        <Link
+          href="/"
+          className="flex items-center gap-2"
+          onClick={closeMobileMenu}
+          aria-label="PrimeBoost Nigeria home"
+        >
+          <AppLogo size={36} />
+
+          <span className="gold-gradient-text text-base font-bold tracking-wide">
+            PrimeBoost Nigeria
+          </span>
+        </Link>
+
+        {/* Desktop navigation */}
+        <div className="hidden items-center gap-7 md:flex">
+          {navItems.map((item) => (
             <Link
-              key={`nav-${item?.label?.toLowerCase()}`}
-              href={item?.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+              key={item.label}
+              href={item.href}
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {item?.label}
+              {item.label}
             </Link>
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link href="/sign-up-login-screen" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+        {/* Desktop actions */}
+        <div className="hidden items-center gap-3 md:flex">
+
+          <Link
+            href="/sign-up-login-screen"
+            className="rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          >
             Sign In
           </Link>
-          <Link href="/sign-up-login-screen" className="btn-primary px-5 py-2 rounded-lg text-sm">
+
+          <Link
+            href="/sign-up-login-screen"
+            className="btn-primary rounded-lg px-5 py-2.5 text-sm font-semibold"
+          >
             Get Started
           </Link>
+
         </div>
 
-        {/* Mobile */}
+        {/* Mobile menu button */}
         <button
-          className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
-          onClick={() => setMobileOpen(!mobileOpen)}
+          type="button"
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileOpen}
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
+          onClick={() => setMobileOpen((open) => !open)}
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {mobileOpen ? (
+            <X size={20} />
+          ) : (
+            <Menu size={20} />
+          )}
         </button>
       </div>
+
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-card border-b border-border animate-slide-down">
-          <div className="px-4 py-4 space-y-2">
-            {[
-              { label: 'Services', href: '/service-catalog' },
-              { label: 'Pricing', href: '/service-catalog' },
-              { label: 'Sign In', href: '/sign-up-login-screen' },
-            ]?.map((item) => (
+        <div className="border-t border-border bg-card/95 backdrop-blur-xl md:hidden">
+          <div className="space-y-1 px-4 py-4">
+
+            {navItems.map((item) => (
               <Link
-                key={`mobile-${item?.label?.toLowerCase()}`}
-                href={item?.href}
-                className="block px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-colors"
-                onClick={() => setMobileOpen(false)}
+                key={`mobile-${item.label}`}
+                href={item.href}
+                className="block rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+                onClick={closeMobileMenu}
               >
-                {item?.label}
+                {item.label}
               </Link>
             ))}
-            <Link
-              href="/sign-up-login-screen"
-              className="block btn-primary px-4 py-2.5 rounded-lg text-sm text-center mt-2"
-              onClick={() => setMobileOpen(false)}
-            >
-              Get Started Free
-            </Link>
+
+            <div className="mt-3 border-t border-border pt-3">
+
+              <Link
+                href="/sign-up-login-screen"
+                className="block rounded-lg px-3 py-3 text-sm font-semibold text-muted-foreground hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
+                Sign In
+              </Link>
+
+              <Link
+                href="/sign-up-login-screen"
+                className="btn-primary mt-2 block rounded-lg px-4 py-3 text-center text-sm font-semibold"
+                onClick={closeMobileMenu}
+              >
+                Get Started
+              </Link>
+
+            </div>
           </div>
         </div>
       )}
