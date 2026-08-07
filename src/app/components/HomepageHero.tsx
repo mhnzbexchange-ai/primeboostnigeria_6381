@@ -18,7 +18,12 @@ const platforms = [
     name: 'Instagram',
     color: 'text-pink-400',
     icon: (
-      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4 fill-none stroke-current"
+        strokeWidth="1.8"
+        aria-hidden="true"
+      >
         <rect x="3" y="3" width="18" height="18" rx="5" />
         <circle cx="12" cy="12" r="4" />
         <circle cx="17.5" cy="6.5" r="1" className="fill-current stroke-none" />
@@ -39,7 +44,7 @@ const platforms = [
     color: 'text-sky-400',
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
-        <path d="M21.9 3.1 2.8 10.5c-1.3.5-1.3 1.3-.2 1.7l4.9 1.5 1.9 5.9c.2.5.1.7.6.7.4 0 .6-.2.8-.4l2.4-2.3 5 3.7c.9.5 1.5.3 1.7-.8l3.2-15.1c.3-1.3-.5-1.9-1.2-1.4ZM8.3 13.3l10.8-6.8c.5-.3 1-.1.6.2l-8.8 8-.3 3.4-1.7-4.8-3.7-1.1 3.1-.9Z" />
+        <path d="M21.9 3.1 2.8 10.5c-1.3.5-1.3 1.3.2 1.7l4.9 1.5 1.9 5.9c.2.5.1.7.6.7.4 0 .6-.2.8-.4l2.4-2.3 5 3.7c.9.5 1.5.3 1.7-.8l3.2-15.1c.3-1.3-.5-1.9-1.2-1.4ZM8.3 13.3l10.8-6.8c.5-.3 1-.1.6.2l-8.8 8-.3 3.4-1.7-4.8-1.7-4.8-3.7-1.1 3.1-.9Z" />
       </svg>
     ),
   },
@@ -98,13 +103,13 @@ export default function HomepageHero() {
         {/* Live status */}
         <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-2 backdrop-blur">
           <span className="h-2 w-2 rounded-full bg-green-500" />
-          <span className="text-xs font-medium text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             Platform live and accepting orders
           </span>
         </div>
 
         {/* Main heading */}
-        <h1 className="text-hero-xl font-extrabold leading-tight text-foreground">
+        <h1 className="text-hero-xl font-extrabold leading-tight tracking-tight text-foreground">
           Grow Your Social Media
           <br />
           <span className="gold-gradient-text">
@@ -112,28 +117,18 @@ export default function HomepageHero() {
           </span>
         </h1>
 
-        {/* Description */}
-        <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-          Social media promotion services for TikTok, Instagram, YouTube,
-          Telegram and other supported platforms, with clear pricing in
-          Nigerian Naira.
-        </p>
+        {/* Main message */}
+        <div className="mx-auto mt-7 max-w-2xl">
+          <h2 className="mb-4 text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
+            Take Your Social Presence to the Next Level
+          </h2>
 
-        {/* Contact */}
-        <div className="mt-5 flex flex-wrap justify-center gap-4">
-          <a
-            href="mailto:primeboostnigeria@gmail.com"
-            className="text-sm text-muted-foreground transition-colors hover:text-primary"
-          >
-            ✉ primeboostnigeria@gmail.com
-          </a>
-
-          <a
-            href="tel:07082653790"
-            className="text-sm text-muted-foreground transition-colors hover:text-primary"
-          >
-            📞 07082653790
-          </a>
+          <p className="text-sm font-semibold leading-7 text-foreground/80 sm:text-base">
+            Build a stronger digital presence with reliable promotion services
+            for TikTok, Instagram, YouTube, Telegram, X, and more. Simple
+            ordering, transparent pricing, and services built for creators
+            and businesses.
+          </p>
         </div>
 
         {/* Social platforms */}
@@ -147,7 +142,7 @@ export default function HomepageHero() {
                 {platform.icon}
               </span>
 
-              <span className="text-muted-foreground">
+              <span className="font-semibold text-muted-foreground">
                 {platform.name}
               </span>
             </span>
@@ -159,7 +154,7 @@ export default function HomepageHero() {
 
           <Link
             href="/sign-up-login-screen"
-            className="btn-primary flex min-w-[190px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold glow-gold-sm"
+            className="btn-primary flex min-w-[190px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold glow-gold-sm"
           >
             Get Started
             <ArrowRight size={16} />
@@ -167,7 +162,7 @@ export default function HomepageHero() {
 
           <Link
             href="/service-catalog"
-            className="btn-outline-gold flex min-w-[190px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold"
+            className="btn-outline-gold flex min-w-[190px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold"
           >
             <Play size={14} className="fill-primary" />
             View Services
@@ -179,13 +174,13 @@ export default function HomepageHero() {
         <div className="mx-auto mt-14 grid max-w-4xl gap-4 sm:grid-cols-3">
 
           <div className="rounded-2xl border border-border bg-card/60 p-5 text-left backdrop-blur">
-            <div className="mb-3 text-xl">₦</div>
+            <div className="mb-3 text-xl font-bold">₦</div>
 
-            <h3 className="font-semibold">
+            <h3 className="font-bold">
               Transparent Pricing
             </h3>
 
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
               See the price of a service before placing your order.
             </p>
           </div>
@@ -193,11 +188,11 @@ export default function HomepageHero() {
           <div className="rounded-2xl border border-border bg-card/60 p-5 text-left backdrop-blur">
             <div className="mb-3 text-xl">⚡</div>
 
-            <h3 className="font-semibold">
+            <h3 className="font-bold">
               Simple Ordering
             </h3>
 
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
               Select a service, enter the required details and place your
               order.
             </p>
@@ -206,11 +201,11 @@ export default function HomepageHero() {
           <div className="rounded-2xl border border-border bg-card/60 p-5 text-left backdrop-blur">
             <div className="mb-3 text-xl">💬</div>
 
-            <h3 className="font-semibold">
+            <h3 className="font-bold">
               Customer Support
             </h3>
 
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
               Contact our support team when you need help with an order.
             </p>
           </div>
