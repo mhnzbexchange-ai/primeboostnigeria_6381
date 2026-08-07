@@ -1,123 +1,194 @@
 import React from 'react';
 import Link from 'next/link';
 import AppLogo from '@/components/ui/AppLogo';
-import { MessageCircle, Mail, Phone } from 'lucide-react';
+import {
+  MessageCircle,
+  Mail,
+  Phone,
+  ShieldCheck,
+} from 'lucide-react';
 
 const footerLinks = {
   Services: [
     { label: 'TikTok Services', href: '/service-catalog' },
     { label: 'Instagram Services', href: '/service-catalog' },
+    { label: 'YouTube Services', href: '/service-catalog' },
     { label: 'Telegram Services', href: '/service-catalog' },
-    { label: 'X (Twitter) Services', href: '/service-catalog' },
-    { label: 'Snapchat Services', href: '/service-catalog' },
+    { label: 'X Services', href: '/service-catalog' },
   ],
+
   Account: [
     { label: 'Sign Up', href: '/sign-up-login-screen' },
     { label: 'Log In', href: '/sign-up-login-screen' },
     { label: 'Dashboard', href: '/user-dashboard' },
-    { label: 'Wallet', href: '/user-dashboard' },
-    { label: 'Referral Program', href: '/user-dashboard' },
   ],
-  Legal: [
-    { label: 'Privacy Policy', href: '#privacy' },
-    { label: 'Terms of Service', href: '#terms' },
-    { label: 'Refund Policy', href: '#refund' },
-    { label: 'Cookie Policy', href: '#cookies' },
-    { label: 'About Us', href: '#about' },
+
+  Information: [
+    { label: 'FAQ', href: '#faq' },
+    { label: 'Services & Pricing', href: '/service-catalog' },
+    { label: 'Contact Support', href: '#contact' },
   ],
 };
 
-const paymentMethods = [
-  { name: 'Paystack', emoji: '💳' },
-  { name: 'Flutterwave', emoji: '🦋' },
-  { name: 'Bank Transfer', emoji: '🏦' },
-  { name: 'Opay', emoji: '📱' },
-  { name: 'PalmPay', emoji: '🌴' },
-  { name: 'Moniepoint', emoji: '💰' },
-];
-
 export default function HomepageFooter() {
   return (
-    <footer className="bg-card border-t border-border" id="contact">
-      <div className="max-w-screen-xl mx-auto px-4 lg:px-8">
+    <footer
+      className="border-t border-border bg-card"
+      id="contact"
+    >
+      <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
+
         {/* Main footer */}
-        <div className="py-16 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 gap-10 py-16 md:grid-cols-2 xl:grid-cols-5">
+
           {/* Brand */}
           <div className="xl:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
+
+            <div className="mb-4 flex items-center gap-2">
               <AppLogo size={36} />
-              <span className="font-bold text-base gold-gradient-text tracking-wide">PrimeBoost Nigeria</span>
+
+              <span className="gold-gradient-text text-base font-bold tracking-wide">
+                PrimeBoost Nigeria
+              </span>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-sm">
-              Nigeria&apos;s most trusted digital promotion platform. Helping creators, businesses, and individuals grow their social media presence with fast, safe, and affordable services since 2022.
+
+            <p className="mb-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              A Nigerian social media promotion platform offering
+              services for supported social platforms. Browse available
+              services and pricing before placing an order.
             </p>
 
             {/* Contact */}
-            <div className="space-y-2">
-              <a href="https://wa.me/2347082653790" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <MessageCircle size={14} className="text-green-400" />
-                +234 708 265 3790 (WhatsApp)
+            <div className="space-y-3">
+
+              <a
+                href="https://wa.me/2347082653790"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <MessageCircle
+                  size={15}
+                  className="text-green-400"
+                />
+
+                +234 708 265 3790
               </a>
-              <a href="mailto:primeboostnigeria@gmail.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <Mail size={14} className="text-primary" />
+
+              <a
+                href="mailto:primeboostnigeria@gmail.com"
+                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Mail
+                  size={15}
+                  className="text-primary"
+                />
+
                 primeboostnigeria@gmail.com
               </a>
+
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone size={14} className="text-blue-400" />
-                Mon – Sat, 8am – 10pm WAT
+                <Phone
+                  size={15}
+                  className="text-primary"
+                />
+
+                Customer support
               </div>
+
             </div>
           </div>
 
-          {/* Links */}
-          {Object.entries(footerLinks)?.map(([category, links]) => (
-            <div key={`footer-col-${category?.toLowerCase()}`}>
-              <h4 className="font-bold text-sm mb-4">{category}</h4>
-              <ul className="space-y-2">
-                {links?.map((link) => (
-                  <li key={`footer-link-${link?.label?.toLowerCase()?.replace(/\s/g, '-')}`}>
-                    <Link
-                      href={link?.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {link?.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Footer links */}
+          {Object.entries(footerLinks).map(
+            ([category, links]) => (
+              <div key={category}>
+
+                <h4 className="mb-4 text-sm font-bold">
+                  {category}
+                </h4>
+
+                <ul className="space-y-2.5">
+
+                  {links.map((link) => (
+                    <li key={link.label}>
+
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                      >
+                        {link.label}
+                      </Link>
+
+                    </li>
+                  ))}
+
+                </ul>
+
+              </div>
+            )
+          )}
+
         </div>
 
-        {/* Payment methods */}
-        <div className="py-6 border-t border-border">
-          <p className="text-xs text-muted-foreground text-center mb-4">Accepted Payment Methods</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {paymentMethods?.map((pm) => (
-              <div
-                key={`payment-${pm?.name?.toLowerCase()?.replace(/\s/g, '-')}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/40 border border-border text-xs font-medium"
-              >
-                <span>{pm?.emoji}</span>
-                <span className="text-muted-foreground">{pm?.name}</span>
-              </div>
-            ))}
+        {/* Transparency section */}
+        <div className="border-t border-border py-7">
+
+          <div className="mx-auto flex max-w-3xl items-start gap-3 rounded-xl border border-primary/15 bg-background/50 p-4">
+
+            <ShieldCheck
+              size={20}
+              className="mt-0.5 flex-shrink-0 text-primary"
+            />
+
+            <div>
+              <p className="text-sm font-semibold">
+                Clear and transparent service information
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Service availability, pricing and minimum order
+                requirements may change. Please review the current
+                information shown on the website before placing an order.
+              </p>
+            </div>
+
           </div>
+
         </div>
 
         {/* Bottom bar */}
-        <div className="py-5 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-border py-5 sm:flex-row">
+
           <p className="text-xs text-muted-foreground">
-            © 2026 PrimeBoost Nigeria. All rights reserved. Registered in Nigeria.
+            © 2026 PrimeBoost Nigeria. All rights reserved.
           </p>
+
           <div className="flex items-center gap-4">
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              All systems operational
+
+            <Link
+              href="#faq"
+              className="text-xs text-muted-foreground transition-colors hover:text-primary"
+            >
+              FAQ
+            </Link>
+
+            <a
+              href="mailto:primeboostnigeria@gmail.com"
+              className="text-xs text-muted-foreground transition-colors hover:text-primary"
+            >
+              Contact
+            </a>
+
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-green-400" />
+              Online
             </span>
-            <span className="text-xs text-muted-foreground">🇳🇬 Made for Nigeria</span>
+
           </div>
+
         </div>
+
       </div>
     </footer>
   );
