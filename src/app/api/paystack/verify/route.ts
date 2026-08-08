@@ -18,8 +18,6 @@ export async function POST(request: NextRequest) {
     const secretKey = process.env.PAYSTACK_SECRET_KEY;
 
     if (!secretKey) {
-      console.error('PAYSTACK_SECRET_KEY is missing');
-
       return NextResponse.json(
         {
           success: false,
@@ -29,9 +27,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the currently logged-in user
     const supabase = await createClient();
 
+    // Make sure the customer is logged in
     const {
       data: { user },
       error: authError,
@@ -47,7 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify transaction directly with Paystack
+    // Ask Paystack to verify the transaction
     const response = await fetch(
       `https://api.paystack.co/transaction/verify/${encodeURIComponent(
         reference
@@ -78,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     const payment = data.data;
 
-    // Payment must actually be successful
+    // Only successful Paystack payments can fund the wallet
     if (payment.status !== 'success') {
       return NextResponse.json(
         {
@@ -89,7 +87,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Paystack returns the amount in kobo
+    // Paystack amount is returned in kobo
     const amountNaira = Number(payment.amount) / 100;
 
     if (!Number.isFinite(amountNaira) || amountNaira < 500) {
@@ -102,7 +100,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Make sure this payment email belongs to the logged-in account
+    // Make sure the Paystack customer matches the logged-in account
     if (
       payment.customer?.email &&
       user.email &&
@@ -117,44 +115,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    /*
-     * IMPORTANT:
-     * Check whether this Paystack reference has already been credited.
-     */
+    // Check if this Paystack reference has already been processed
     const { data: existingTransaction, error: existingError } =
       await supabase
         .from('wallet_transactions')
         .select('id')
-        .eq('user_id', user.id)
         .eq('reference', reference)
         .maybeSingle();
 
     if (existingError) {
-      console.error(
-        'Existing transaction check failed:',
-        existingError
-      );
+      console.error('Transaction check error:', existingError);
 
       return NextResponse.json(
         {
           success: false,
-          error: 'Unable to verify wallet transaction',
+          error: 'Unable to check payment history',
         },
         { status: 500 }
       );
     }
 
-    // Already credited
+    // Never credit the same payment twice
     if (existingTransaction) {
       return NextResponse.json({
         success: true,
         alreadyProcessed: true,
         amount: amountNaira,
-        message: 'Payment has already been added to your wallet',
+        reference,
+        message: 'This payment has already been added to your wallet',
       });
     }
 
-    // Find the user's wallet
+    // Find the customer's wallet
     const { data: wallet, error: walletError } = await supabase
       .from('wallets')
       .select('id, balance, total_funded')
@@ -186,24 +178,18 @@ export async function POST(request: NextRequest) {
     const currentBalance = Number(wallet.balance || 0);
     const currentTotalFunded = Number(wallet.total_funded || 0);
 
-    const newBalance = currentBalance + amountNaira;
-    const newTotalFunded = currentTotalFunded + amountNaira;
-
-    // Update wallet
+    // Credit only after Paystack confirmed success
     const { error: updateWalletError } = await supabase
       .from('wallets')
       .update({
-        balance: newBalance,
-        total_funded: newTotalFunded,
+        balance: currentBalance + amountNaira,
+        total_funded: currentTotalFunded + amountNaira,
       })
       .eq('id', wallet.id)
       .eq('user_id', user.id);
 
     if (updateWalletError) {
-      console.error(
-        'Wallet update error:',
-        updateWalletError
-      );
+      console.error('Wallet update error:', updateWalletError);
 
       return NextResponse.json(
         {
@@ -214,22 +200,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Record the successful payment
+    // Save the successful payment
     const { error: transactionError } = await supabase
       .from('wallet_transactions')
       .insert({
         user_id: user.id,
         wallet_id: wallet.id,
         transaction_type: 'credit',
-        source: 'wallet_fund',
         amount: amountNaira,
-        reference: reference,
-        description: `Wallet funded via Paystack`,
+        reference,
+        description: 'Wallet funded via Paystack',
       });
 
     if (transactionError) {
       console.error(
-        'Transaction record error:',
+        'Transaction recording error:',
         transactionError
       );
 
@@ -237,7 +222,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error:
-            'Payment was verified and wallet updated, but transaction recording failed',
+            'Payment was verified, but the transaction could not be recorded',
         },
         { status: 500 }
       );
