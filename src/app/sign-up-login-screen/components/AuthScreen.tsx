@@ -51,6 +51,9 @@ export default function AuthScreen() {
   const [loading, setLoading] =
     useState(false);
 
+  const [googleLoading, setGoogleLoading] =
+    useState(false);
+
   const [showForgotModal, setShowForgotModal] =
     useState(false);
 
@@ -75,6 +78,7 @@ export default function AuthScreen() {
   const {
     signIn,
     signUp,
+    signInWithGoogle,
     resetPassword,
     resendVerificationEmail,
     getCurrentUser,
@@ -96,6 +100,30 @@ export default function AuthScreen() {
     useForm<ForgotForm>();
 
   // ========================================
+  // GOOGLE SIGN IN
+  // ========================================
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      console.error(
+        'Google authentication error:',
+        error
+      );
+
+      toast.error(
+        error?.message ||
+          'Unable to continue with Google. Please try again.'
+      );
+
+      setGoogleLoading(false);
+    }
+  };
+
+  // ========================================
   // LOGIN
   // ========================================
 
@@ -107,9 +135,6 @@ export default function AuthScreen() {
     setResendSent(false);
 
     try {
-      /*
-       * Sign in through Supabase.
-       */
       await signIn(
         data.email,
         data.password
@@ -119,18 +144,10 @@ export default function AuthScreen() {
         'Welcome back! Redirecting...'
       );
 
-      /*
-       * Give the browser a moment to persist
-       * the Supabase session cookie.
-       */
       await new Promise((resolve) =>
         setTimeout(resolve, 300)
       );
 
-      /*
-       * Confirm that Supabase can actually see
-       * the authenticated user before navigating.
-       */
       const currentUser =
         await getCurrentUser();
 
@@ -140,9 +157,6 @@ export default function AuthScreen() {
         );
       }
 
-      /*
-       * Now navigate to the dashboard.
-       */
       router.replace('/user-dashboard');
 
     } catch (error: any) {
@@ -289,6 +303,76 @@ export default function AuthScreen() {
         setResendLoading(false);
       }
     };
+
+  // ========================================
+  // GOOGLE BUTTON
+  // ========================================
+
+  const GoogleButton = () => (
+    <>
+      <div className="flex items-center gap-3 my-5">
+        <div className="h-px flex-1 bg-border" />
+
+        <span className="text-xs text-muted-foreground">
+          OR
+        </span>
+
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={
+          googleLoading ||
+          loading
+        }
+        className="w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-3 border border-border bg-background hover:bg-muted/50 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {googleLoading ? (
+          <>
+            <Loader2
+              size={18}
+              className="animate-spin"
+            />
+
+            Connecting to Google...
+          </>
+        ) : (
+          <>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                fill="#4285F4"
+                d="M21.35 12.27c0-.79-.07-1.55-.22-2.27H12v4.3h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.42z"
+              />
+
+              <path
+                fill="#34A853"
+                d="M12 21.92c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.29v2.53A9.75 9.75 0 0 0 12 21.92z"
+              />
+
+              <path
+                fill="#FBBC05"
+                d="M6.54 14c-.2-.58-.31-1.2-.31-1.83s.11-1.25.31-1.83V7.81H3.29A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.04 4.19L6.54 14z"
+              />
+
+              <path
+                fill="#EA4335"
+                d="M12 6.14c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.83 3.16 14.63 2.08 12 2.08a9.75 9.75 0 0 0-8.71 5.73L6.54 10.34C7.31 8.03 9.46 6.14 12 6.14z"
+              />
+            </svg>
+
+            Continue with Google
+          </>
+        )}
+      </button>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -464,7 +548,7 @@ export default function AuthScreen() {
 
           </div>
 
-          {/* EMAIL VERIFICATION AFTER REGISTER */}
+          {/* EMAIL VERIFICATION */}
 
           {registeredEmail &&
             tab === 'register' && (
@@ -719,11 +803,14 @@ export default function AuthScreen() {
 
               </div>
 
-              {/* SIGN IN BUTTON */}
+              {/* SIGN IN */}
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={
+                  loading ||
+                  googleLoading
+                }
                 className="btn-primary w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 style={{
                   minHeight: '44px',
@@ -736,6 +823,7 @@ export default function AuthScreen() {
                       size={18}
                       className="animate-spin"
                     />
+
                     Signing in...
                   </>
                 ) : (
@@ -746,6 +834,8 @@ export default function AuthScreen() {
                 )}
 
               </button>
+
+              <GoogleButton />
 
             </form>
           )}
@@ -779,6 +869,7 @@ export default function AuthScreen() {
                         {
                           required:
                             'First name is required',
+
                           minLength: {
                             value: 2,
                             message:
@@ -805,6 +896,7 @@ export default function AuthScreen() {
                         {
                           required:
                             'Last name is required',
+
                           minLength: {
                             value: 2,
                             message:
@@ -978,13 +1070,16 @@ export default function AuthScreen() {
 
                   <span className="text-xs text-muted-foreground">
                     I agree to the{' '}
+
                     <a
                       href="/terms"
                       className="text-primary hover:underline"
                     >
                       Terms of Service
                     </a>{' '}
+
                     and{' '}
+
                     <a
                       href="/privacy"
                       className="text-primary hover:underline"
@@ -1009,7 +1104,10 @@ export default function AuthScreen() {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={
+                    loading ||
+                    googleLoading
+                  }
                   className="btn-primary w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   style={{
                     minHeight: '44px',
@@ -1022,6 +1120,7 @@ export default function AuthScreen() {
                         size={18}
                         className="animate-spin"
                       />
+
                       Creating account...
                     </>
                   ) : (
@@ -1032,6 +1131,8 @@ export default function AuthScreen() {
                   )}
 
                 </button>
+
+                <GoogleButton />
 
               </form>
             )}
@@ -1156,6 +1257,7 @@ export default function AuthScreen() {
                           size={18}
                           className="animate-spin"
                         />
+
                         Sending...
                       </>
                     ) : (
