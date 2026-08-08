@@ -14,27 +14,49 @@ type AuthContextType = {
   user: User | null;
   session: Session | null;
   loading: boolean;
+
   signUp: (
     email: string,
     password: string,
     metadata?: any
   ) => Promise<any>;
-  signIn: (email: string, password: string) => Promise<any>;
+
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<any>;
+
+  signInWithGoogle: () => Promise<any>;
+
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  resendVerificationEmail: (email: string) => Promise<void>;
+
+  resetPassword: (
+    email: string
+  ) => Promise<void>;
+
+  resendVerificationEmail: (
+    email: string
+  ) => Promise<void>;
+
   getCurrentUser: () => Promise<User | null>;
+
   isEmailVerified: () => boolean;
+
   getUserProfile: () => Promise<any>;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext =
+  createContext<AuthContextType | undefined>(
+    undefined
+  );
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error(
+      'useAuth must be used within AuthProvider'
+    );
   }
 
   return context;
@@ -45,9 +67,14 @@ export const AuthProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] =
+    useState<User | null>(null);
+
+  const [session, setSession] =
+    useState<Session | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
 
   const supabase = createClient();
 
@@ -65,7 +92,10 @@ export const AuthProvider = ({
         setSession(session);
         setUser(session?.user ?? null);
       } catch (error) {
-        console.error('Failed to load Supabase session:', error);
+        console.error(
+          'Failed to load Supabase session:',
+          error
+        );
 
         if (mounted) {
           setSession(null);
@@ -82,15 +112,16 @@ export const AuthProvider = ({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (!mounted) return;
+    } =
+      supabase.auth.onAuthStateChange(
+        async (_event, session) => {
+          if (!mounted) return;
 
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      );
 
     return () => {
       mounted = false;
@@ -114,44 +145,52 @@ export const AuthProvider = ({
         : '');
 
     const fullName =
-      [metadata?.firstName, metadata?.lastName]
+      [
+        metadata?.firstName,
+        metadata?.lastName,
+      ]
         .filter(Boolean)
         .join(' ') ||
       metadata?.fullName ||
       '';
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+    const { data, error } =
+      await supabase.auth.signUp({
+        email,
+        password,
 
-      options: {
-        data: {
-          full_name: fullName,
-          first_name: metadata?.firstName || '',
-          last_name: metadata?.lastName || '',
-          avatar_url: metadata?.avatarUrl || '',
-          referral_code: metadata?.referralCode || '',
+        options: {
+          data: {
+            full_name: fullName,
+            first_name:
+              metadata?.firstName || '',
+            last_name:
+              metadata?.lastName || '',
+            avatar_url:
+              metadata?.avatarUrl || '',
+            referral_code:
+              metadata?.referralCode || '',
+          },
+
+          emailRedirectTo:
+            `${siteUrl}/auth/callback`,
         },
+      });
 
-        emailRedirectTo: `${siteUrl}/auth/callback`,
-      },
-    });
-
-    console.log('Supabase signUp response:', {
-      data,
-      error,
-    });
+    console.log(
+      'Supabase signUp response:',
+      {
+        data,
+        error,
+      }
+    );
 
     if (error) {
-      throw new Error(error.message || 'Sign up failed');
+      throw new Error(
+        error.message || 'Sign up failed'
+      );
     }
 
-    /*
-     * If email verification is enabled,
-     * Supabase may return a user without a session.
-     *
-     * We intentionally do not force a sign-out here.
-     */
     if (data?.session) {
       setSession(data.session);
       setUser(data.user);
@@ -180,34 +219,37 @@ export const AuthProvider = ({
           ?.toLowerCase()
           .includes('email not confirmed')
       ) {
-        throw new Error('EMAIL_NOT_VERIFIED');
+        throw new Error(
+          'EMAIL_NOT_VERIFIED'
+        );
       }
 
       throw new Error(
-        error.message || 'Unable to sign in'
+        error.message ||
+          'Unable to sign in'
       );
     }
 
-    if (!data.user || !data.session) {
+    if (
+      !data.user ||
+      !data.session
+    ) {
       throw new Error(
         'Login succeeded but no session was created. Please try again.'
       );
     }
 
-    // Block login if email is not verified.
     if (!data.user.email_confirmed_at) {
       await supabase.auth.signOut();
 
       setSession(null);
       setUser(null);
 
-      throw new Error('EMAIL_NOT_VERIFIED');
+      throw new Error(
+        'EMAIL_NOT_VERIFIED'
+      );
     }
 
-    /*
-     * IMPORTANT:
-     * Update the local auth state immediately.
-     */
     setSession(data.session);
     setUser(data.user);
 
@@ -215,40 +257,87 @@ export const AuthProvider = ({
   };
 
   // =========================
+  // GOOGLE SIGN IN
+  // =========================
+
+  const signInWithGoogle =
+    async () => {
+      const siteUrl =
+        process.env
+          .NEXT_PUBLIC_SITE_URL ||
+        (typeof window !== 'undefined'
+          ? window.location.origin
+          : '');
+
+      const {
+        data,
+        error,
+      } =
+        await supabase.auth.signInWithOAuth(
+          {
+            provider: 'google',
+
+            options: {
+              redirectTo:
+                `${siteUrl}/auth/callback`,
+            },
+          }
+        );
+
+      if (error) {
+        console.error(
+          'Google sign in error:',
+          error
+        );
+
+        throw new Error(
+          error.message ||
+            'Unable to continue with Google'
+        );
+      }
+
+      return data;
+    };
+
+  // =========================
   // RESEND VERIFICATION
   // =========================
 
-  const resendVerificationEmail = async (
-    email: string
-  ) => {
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      (typeof window !== 'undefined'
-        ? window.location.origin
-        : '');
+  const resendVerificationEmail =
+    async (email: string) => {
+      const siteUrl =
+        process.env
+          .NEXT_PUBLIC_SITE_URL ||
+        (typeof window !== 'undefined'
+          ? window.location.origin
+          : '');
 
-    const { data, error } =
-      await supabase.auth.resend({
-        type: 'signup',
-        email: email.trim(),
+      const { data, error } =
+        await supabase.auth.resend({
+          type: 'signup',
+          email: email.trim(),
 
-        options: {
-          emailRedirectTo: `${siteUrl}/auth/callback`,
-        },
-      });
+          options: {
+            emailRedirectTo:
+              `${siteUrl}/auth/callback`,
+          },
+        });
 
-    console.log(
-      'Supabase resend response:',
-      { data, error }
-    );
-
-    if (error) {
-      throw new Error(
-        error.message ||
-          'Failed to resend verification email'
+      console.log(
+        'Supabase resend response:',
+        {
+          data,
+          error,
+        }
       );
-    }
-  };
+
+      if (error) {
+        throw new Error(
+          error.message ||
+            'Failed to resend verification email'
+        );
+      }
+    };
 
   // =========================
   // SIGN OUT
@@ -302,65 +391,81 @@ export const AuthProvider = ({
   // CURRENT USER
   // =========================
 
-  const getCurrentUser = async () => {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
+  const getCurrentUser =
+    async () => {
+      const {
+        data: { user },
+        error,
+      } =
+        await supabase.auth.getUser();
 
-    if (error) {
-      throw error;
-    }
+      if (error) {
+        throw error;
+      }
 
-    return user;
-  };
+      return user;
+    };
 
   // =========================
   // EMAIL VERIFIED
   // =========================
 
-  const isEmailVerified = () => {
-    return !!user?.email_confirmed_at;
-  };
+  const isEmailVerified =
+    () => {
+      return !!user?.email_confirmed_at;
+    };
 
   // =========================
   // USER PROFILE
   // =========================
 
-  const getUserProfile = async () => {
-    if (!user) {
-      return null;
-    }
+  const getUserProfile =
+    async () => {
+      if (!user) {
+        return null;
+      }
 
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
+      const { data, error } =
+        await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
 
-    if (error) {
-      throw error;
-    }
+      if (error) {
+        throw error;
+      }
 
-    return data;
-  };
+      return data;
+    };
+
+  // =========================
+  // CONTEXT VALUE
+  // =========================
 
   const value: AuthContextType = {
     user,
     session,
     loading,
+
     signUp,
     signIn,
+    signInWithGoogle,
+
     signOut,
+
     resetPassword,
     resendVerificationEmail,
+
     getCurrentUser,
     isEmailVerified,
     getUserProfile,
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={value}
+    >
       {children}
     </AuthContext.Provider>
   );
