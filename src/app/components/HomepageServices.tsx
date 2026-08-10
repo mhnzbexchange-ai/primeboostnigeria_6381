@@ -18,7 +18,11 @@ const services = ALL_SERVICES?.filter((service) =>
 
 export default function HomepageServices() {
   return (
-    <section className="bg-background py-24">
+    <section
+      id="featured-services"
+      className="bg-background py-24"
+      aria-labelledby="services-heading"
+    >
       <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
 
         {/* Section heading */}
@@ -27,28 +31,38 @@ export default function HomepageServices() {
             OUR SERVICES
           </p>
 
-          <h2 className="text-hero-md mb-4 font-bold">
+          <h2
+            id="services-heading"
+            className="text-hero-md mb-4 font-bold"
+          >
             Social Media{' '}
             <span className="gold-gradient-text">
               Promotion Services
             </span>
           </h2>
 
-          <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Choose from our available social media promotion services.
-            Pricing is displayed in Nigerian Naira so you can see the cost
-            before placing an order.
+          <p className="mx-auto max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+            PrimeBoost Nigeria provides social media promotion services for
+            creators, businesses, and individuals. Browse our featured
+            services, review the available pricing and order requirements,
+            and choose an option that fits your needs.
           </p>
 
-          <p className="mt-3 text-xs text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-2xl text-xs leading-6 text-muted-foreground">
+            Prices and service requirements are displayed before you place an
+            order. Delivery times are estimates and may vary depending on the
+            service and platform.
+          </p>
+
+          <p className="mt-3 text-xs font-medium text-muted-foreground">
             Minimum order: {MINIMUM_ORDER_QTY?.toLocaleString()} units
           </p>
         </div>
 
-        {/* Services */}
+        {/* Featured services */}
         <div className="mb-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {services?.map((service) => (
-            <div
+            <article
               key={service?.id}
               className="card-base card-gradient-bg group flex flex-col transition-all duration-300 hover:border-primary/40 hover:glow-gold-sm"
             >
@@ -60,6 +74,7 @@ export default function HomepageServices() {
 
                   <div
                     className={`flex h-11 w-11 items-center justify-center rounded-xl ${service?.platformBg}`}
+                    aria-hidden="true"
                   >
                     <span className="text-lg">
                       {service?.emoji}
@@ -73,9 +88,9 @@ export default function HomepageServices() {
                       {service?.platform}
                     </p>
 
-                    <p className="mt-0.5 text-sm font-bold">
+                    <h3 className="mt-0.5 text-sm font-bold">
                       {service?.service}
-                    </p>
+                    </h3>
                   </div>
 
                 </div>
@@ -93,8 +108,8 @@ export default function HomepageServices() {
 
               </div>
 
-              {/* Description */}
-              <p className="mb-5 flex-1 text-sm leading-relaxed text-muted-foreground">
+              {/* Service description */}
+              <p className="mb-5 flex-1 text-sm leading-7 text-muted-foreground">
                 {service?.description}
               </p>
 
@@ -105,6 +120,7 @@ export default function HomepageServices() {
                   <Clock
                     size={14}
                     className="mx-auto mb-1.5 text-primary"
+                    aria-hidden="true"
                   />
 
                   <p className="text-xs font-semibold">
@@ -120,6 +136,7 @@ export default function HomepageServices() {
                   <TrendingUp
                     size={14}
                     className="mx-auto mb-1.5 text-primary"
+                    aria-hidden="true"
                   />
 
                   <p className="text-xs font-semibold tabular-nums">
@@ -137,24 +154,30 @@ export default function HomepageServices() {
               <Link
                 href="/order-form"
                 className="btn-outline-gold flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all group-hover:btn-primary"
+                aria-label={`Order ${service?.service} for ${service?.platform}`}
               >
-                <ShoppingCart size={14} />
+                <ShoppingCart size={14} aria-hidden="true" />
                 Order Now
-                <ArrowRight size={14} />
+                <ArrowRight size={14} aria-hidden="true" />
               </Link>
 
-            </div>
+            </article>
           ))}
         </div>
 
-        {/* All services */}
+        {/* Browse all services */}
         <div className="text-center">
+          <p className="mx-auto mb-4 max-w-xl text-xs leading-6 text-muted-foreground">
+            Looking for another platform or service? Browse the complete
+            service catalog to see all currently available options.
+          </p>
+
           <Link
             href="/service-catalog"
             className="btn-primary inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold"
           >
             Explore All Services
-            <ArrowRight size={16} />
+            <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>
 
