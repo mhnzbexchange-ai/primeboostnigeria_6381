@@ -35,13 +35,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={dmSans.variable}>
       <head>
-        {/* Google AdSense */}
-        <Script
-          id="google-adsense"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8244011032789060"
-          crossOrigin="anonymous"
-          strategy="beforeInteractive"
+        {/* Google AdSense site verification */}
+        <meta
+          name="google-adsense-account"
+          content="ca-pub-8244011032789060"
         />
       </head>
 
