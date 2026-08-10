@@ -39,9 +39,9 @@ type OrderFormData = {
 };
 
 const BUSINESS_BANK_DETAILS = {
-  bankName: 'Zenith Bank',
-  accountNumber: '2234567890',
-  accountName: 'PrimeBoost Nigeria Ltd',
+  bankName: 'Kuda bank',
+  accountNumber: '3004047015',
+  accountName: 'CHUKWUDI AWA MBA,
 };
 
 const steps = [
