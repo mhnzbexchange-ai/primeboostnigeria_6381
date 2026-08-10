@@ -44,7 +44,7 @@ const platforms = [
     color: 'text-sky-400',
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
-        <path d="M21.9 3.1 2.8 10.5c-1.3.5-1.3 1.3.2 1.7l4.9 1.5 1.9 5.9c.2.5.1.7.6.7.4 0 .6-.2.8-.4l2.4-2.3 5 3.7c.9.5 1.5.3 1.7-.8l3.2-15.1c.3-1.3-.5-1.9-1.2-1.4ZM8.3 13.3l10.8-6.8c.5-.3 1-.1.6.2l-8.8 8-.3 3.4-1.7-4.8-1.7-4.8-3.7-1.1 3.1-.9Z" />
+        <path d="M21.9 3.1 2.8 10.5c-1.3.5-1.3 1.3.2 1.7l4.9 1.5 1.9 5.9c.2.5.1.7.6.7.4 0 .6-.2.8-.4l2.4-2.3 5 3.7c.9.5 1.5.3 1.7-.8l3.2-15.1c.3-1.3-.5-1.9-1.2-1.4ZM8.3 13.3l10.8-6.8c.5-.3 1-.1.6.2l-8.8 8-.3 3.4-1.7-4.8-1.7-4.8-3.7-1.1 3.1-.9 3.1-.9Z" />
       </svg>
     ),
   },
@@ -110,24 +110,24 @@ export default function HomepageHero() {
 
         {/* Main heading */}
         <h1 className="text-hero-xl font-extrabold leading-tight tracking-tight text-foreground">
-          Grow Your Social Media
+          Social Media Promotion
           <br />
           <span className="gold-gradient-text">
-            Presence With PrimeBoost
+            Made Simple With PrimeBoost
           </span>
         </h1>
 
         {/* Main message */}
         <div className="mx-auto mt-7 max-w-2xl">
           <h2 className="mb-4 text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
-            Take Your Social Presence to the Next Level
+            Promote Your Social Presence With Clear, Simple Services
           </h2>
 
           <p className="text-sm font-semibold leading-7 text-foreground/80 sm:text-base">
-            Build a stronger digital presence with reliable promotion services
-            for TikTok, Instagram, YouTube, Telegram, X, and more. Simple
-            ordering, transparent pricing, and services built for creators
-            and businesses.
+            PrimeBoost Nigeria provides social media promotion services for
+            creators, businesses, and individuals. Choose a service for
+            TikTok, Instagram, YouTube, Telegram, Snapchat, or X, review the
+            available options and pricing, and place your order online.
           </p>
         </div>
 
@@ -181,7 +181,7 @@ export default function HomepageHero() {
             </h3>
 
             <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
-              See the price of a service before placing your order.
+              Review the price and available options before placing an order.
             </p>
           </div>
 
@@ -193,8 +193,8 @@ export default function HomepageHero() {
             </h3>
 
             <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
-              Select a service, enter the required details and place your
-              order.
+              Select a service, provide the required information, and place
+              your order online.
             </p>
           </div>
 
@@ -206,7 +206,8 @@ export default function HomepageHero() {
             </h3>
 
             <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
-              Contact our support team when you need help with an order.
+              Our support team is available to help with questions about
+              services and orders.
             </p>
           </div>
 
