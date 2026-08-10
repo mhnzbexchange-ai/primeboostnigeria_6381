@@ -19,7 +19,7 @@ initialScale: 1,
 };
 
 export const metadata: Metadata = {
-title: 'PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform',
+title: "PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform",
 description:
 'PrimeBoost Nigeria provides social media promotion services for TikTok, Instagram, YouTube, Telegram, Snapchat, and X. View services, pricing, and place orders online.',
 icons: {
@@ -41,7 +41,9 @@ src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pu
 crossOrigin="anonymous"  
 strategy="afterInteractive"  
 />
-</head>
+
+        <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fprimeboost7331back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20" />
+        <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.2" /></head>
 
 <body className={dmSans.className}>  
     <AuthProvider>  
@@ -60,17 +62,6 @@ strategy="afterInteractive"
     />  
 
     {/* Rocket */}  
-    <Script  
-      type="module"  
-      src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fprimeboost7331back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20"  
-      strategy="afterInteractive"  
-    />  
-
-    <Script  
-      type="module"  
-      src="https://static.rocket.new/rocket-shot.js?v=0.0.2"  
-      strategy="afterInteractive"  
-    />  
   </body>  
 </html>
 
