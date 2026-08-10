@@ -10,6 +10,7 @@ import {
 
 const footerLinks = {
   Services: [
+    { label: 'All Services', href: '/service-catalog' },
     { label: 'TikTok Services', href: '/service-catalog' },
     { label: 'Instagram Services', href: '/service-catalog' },
     { label: 'YouTube Services', href: '/service-catalog' },
@@ -18,7 +19,7 @@ const footerLinks = {
   ],
 
   Account: [
-    { label: 'Sign Up', href: '/sign-up-login-screen' },
+    { label: 'Create Account', href: '/sign-up-login-screen' },
     { label: 'Log In', href: '/sign-up-login-screen' },
     { label: 'Dashboard', href: '/user-dashboard' },
   ],
@@ -27,6 +28,12 @@ const footerLinks = {
     { label: 'FAQ', href: '#faq' },
     { label: 'Services & Pricing', href: '/service-catalog' },
     { label: 'Contact Support', href: '#contact' },
+  ],
+
+  Policies: [
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Terms of Service', href: '/terms-of-service' },
+    { label: 'Refund Policy', href: '/refund-policy' },
   ],
 };
 
@@ -39,10 +46,10 @@ export default function HomepageFooter() {
       <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
 
         {/* Main footer */}
-        <div className="grid grid-cols-1 gap-10 py-16 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-10 py-16 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
 
           {/* Brand */}
-          <div className="xl:col-span-2">
+          <div className="lg:col-span-2 xl:col-span-2">
 
             <div className="mb-4 flex items-center gap-2">
               <AppLogo size={36} />
@@ -52,10 +59,11 @@ export default function HomepageFooter() {
               </span>
             </div>
 
-            <p className="mb-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              A Nigerian social media promotion platform offering
-              services for supported social platforms. Browse available
-              services and pricing before placing an order.
+            <p className="mb-6 max-w-sm text-sm leading-7 text-muted-foreground">
+              PrimeBoost Nigeria is a social media promotion platform
+              offering services for supported social platforms. Customers
+              can review available services, pricing and order requirements
+              before placing an order.
             </p>
 
             {/* Contact */}
@@ -66,10 +74,12 @@ export default function HomepageFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Contact PrimeBoost Nigeria on WhatsApp"
               >
                 <MessageCircle
                   size={15}
                   className="text-green-400"
+                  aria-hidden="true"
                 />
 
                 +234 708 265 3790
@@ -78,10 +88,12 @@ export default function HomepageFooter() {
               <a
                 href="mailto:primeboostnigeria@gmail.com"
                 className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Email PrimeBoost Nigeria support"
               >
                 <Mail
                   size={15}
                   className="text-primary"
+                  aria-hidden="true"
                 />
 
                 primeboostnigeria@gmail.com
@@ -91,15 +103,16 @@ export default function HomepageFooter() {
                 <Phone
                   size={15}
                   className="text-primary"
+                  aria-hidden="true"
                 />
 
-                Customer support
+                Customer support available online
               </div>
 
             </div>
           </div>
 
-          {/* Footer links */}
+          {/* Footer link groups */}
           {Object.entries(footerLinks).map(
             ([category, links]) => (
               <div key={category}>
@@ -134,11 +147,12 @@ export default function HomepageFooter() {
         {/* Transparency section */}
         <div className="border-t border-border py-7">
 
-          <div className="mx-auto flex max-w-3xl items-start gap-3 rounded-xl border border-primary/15 bg-background/50 p-4">
+          <div className="mx-auto flex max-w-4xl items-start gap-3 rounded-xl border border-primary/15 bg-background/50 p-4">
 
             <ShieldCheck
               size={20}
               className="mt-0.5 flex-shrink-0 text-primary"
+              aria-hidden="true"
             />
 
             <div>
@@ -146,10 +160,12 @@ export default function HomepageFooter() {
                 Clear and transparent service information
               </p>
 
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Service availability, pricing and minimum order
-                requirements may change. Please review the current
-                information shown on the website before placing an order.
+              <p className="mt-1 text-xs leading-6 text-muted-foreground">
+                Service availability, pricing, minimum order requirements
+                and estimated delivery times may change. Please review the
+                current information shown on the website before placing an
+                order. Customers should also review the applicable platform
+                rules before using a promotion service.
               </p>
             </div>
 
@@ -158,19 +174,40 @@ export default function HomepageFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col items-center justify-between gap-3 border-t border-border py-5 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border py-5 sm:flex-row">
 
           <p className="text-xs text-muted-foreground">
             © 2026 PrimeBoost Nigeria. All rights reserved.
           </p>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
 
             <Link
               href="#faq"
               className="text-xs text-muted-foreground transition-colors hover:text-primary"
             >
               FAQ
+            </Link>
+
+            <Link
+              href="/privacy-policy"
+              className="text-xs text-muted-foreground transition-colors hover:text-primary"
+            >
+              Privacy
+            </Link>
+
+            <Link
+              href="/terms-of-service"
+              className="text-xs text-muted-foreground transition-colors hover:text-primary"
+            >
+              Terms
+            </Link>
+
+            <Link
+              href="/refund-policy"
+              className="text-xs text-muted-foreground transition-colors hover:text-primary"
+            >
+              Refunds
             </Link>
 
             <a
@@ -181,7 +218,10 @@ export default function HomepageFooter() {
             </a>
 
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-green-400" />
+              <span
+                className="h-2 w-2 rounded-full bg-green-400"
+                aria-hidden="true"
+              />
               Online
             </span>
 
