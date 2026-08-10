@@ -36,10 +36,12 @@ export default function RootLayout({
     <html lang="en" className={dmSans.variable}>
       <head>
         {/* Google AdSense */}
-        <script
+        <Script
+          id="google-adsense"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8244011032789060"
           crossOrigin="anonymous"
+          strategy="beforeInteractive"
         />
       </head>
 
