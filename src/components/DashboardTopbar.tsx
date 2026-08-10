@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Menu, Bell, Search, ChevronDown, LogOut, User, Settings, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
-
 interface DashboardTopbarProps {
   onMenuClick: () => void;
   sidebarCollapsed: boolean;
@@ -70,7 +69,10 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
         {/* Notifications */}
         <div className="relative">
           <button
-            onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
+            onClick={() => {
+              setNotifOpen(!notifOpen);
+              setProfileOpen(false);
+            }}
             className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
             <Bell size={20} />
@@ -85,13 +87,21 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
                 <h3 className="font-semibold text-sm">Notifications</h3>
                 <span className="badge-base status-pending">{unreadCount} new</span>
               </div>
+
               <div className="max-h-72 overflow-y-auto scrollbar-gold">
                 {notifications.map((notif) => (
                   <div
                     key={notif.id}
-                    className={`flex gap-3 p-3 border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer ${!notif.read ? 'bg-primary/5' : ''}`}
+                    className={`flex gap-3 p-3 border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer ${
+                      !notif.read ? 'bg-primary/5' : ''
+                    }`}
                   >
-                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!notif.read ? 'bg-primary' : 'bg-muted'}`} />
+                    <div
+                      className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
+                        !notif.read ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    />
+
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium leading-tight">{notif.title}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{notif.time}</p>
@@ -99,8 +109,11 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
                   </div>
                 ))}
               </div>
+
               <div className="p-3 text-center">
-                <button className="text-xs text-primary hover:underline">View all notifications</button>
+                <button className="text-xs text-primary hover:underline">
+                  View all notifications
+                </button>
               </div>
             </div>
           )}
@@ -109,41 +122,67 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
         {/* Profile */}
         <div className="relative">
           <button
-            onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
+            onClick={() => {
+              setProfileOpen(!profileOpen);
+              setNotifOpen(false);
+            }}
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors"
           >
             <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-xs font-bold text-primary-foreground">
               {initials}
             </div>
+
             <div className="hidden md:block text-left">
               <p className="text-xs font-semibold leading-tight">{displayName}</p>
-              <p className="text-xs text-muted-foreground leading-tight">{isAdmin ? 'Administrator' : 'Member'}</p>
+              <p className="text-xs text-muted-foreground leading-tight">
+                {isAdmin ? 'Administrator' : 'Member'}
+              </p>
             </div>
+
             <ChevronDown size={14} className="text-muted-foreground hidden md:block" />
           </button>
 
           {profileOpen && (
             <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-xl shadow-card animate-slide-down z-50">
               <div className="p-2 space-y-0.5">
-                <Link href="/user-dashboard" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors">
+
+                <Link
+                  href="/user-dashboard"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors"
+                >
                   <User size={14} className="text-muted-foreground" />
                   Profile
                 </Link>
-                <Link href="/user-dashboard" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors">
+
+                <Link
+                  href="/user-dashboard"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors"
+                >
                   <Settings size={14} className="text-muted-foreground" />
                   Settings
                 </Link>
-                {!isAdmin && (
-                  <Link href="/admin-dashboard" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors text-primary">
+
+                {/* Admin Panel is now visible ONLY to administrators */}
+                {isAdmin && (
+                  <Link
+                    href="/admin-dashboard"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors text-primary"
+                  >
                     <Shield size={14} />
                     Admin Panel
                   </Link>
                 )}
+
                 <hr className="border-border my-1" />
-                <Link href="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors text-red-400">
+
+                <Link
+                  href="/"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors text-red-400"
+                >
                   <LogOut size={14} />
                   Sign Out
                 </Link>
+
               </div>
             </div>
           )}
