@@ -37,7 +37,6 @@ export default function RootLayout({
       <head>
         {/* Google AdSense */}
         <Script
-          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8244011032789060"
           crossOrigin="anonymous"
           strategy="afterInteractive"
@@ -63,7 +62,6 @@ export default function RootLayout({
         {/* Rocket */}
         <Script
           type="module"
-          async
           src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fprimeboost7331back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20"
           strategy="afterInteractive"
         />
