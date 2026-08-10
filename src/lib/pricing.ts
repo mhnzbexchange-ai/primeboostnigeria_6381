@@ -1,11 +1,17 @@
 /**
  * CENTRALIZED PRICING CONFIGURATION
+ *
  * All service prices are defined here.
  * Formula: Total Price = Quantity × pricePerUnit
+ *
+ * Delivery times are estimates and may vary depending on
+ * the service, platform, and order conditions.
  */
 
 export const MINIMUM_ORDER_QTY = 500;
-export const MINIMUM_ORDER_MESSAGE = 'Minimum order is 500.';
+
+export const MINIMUM_ORDER_MESSAGE =
+  'Minimum order is 500 units. Please review the service requirements before placing an order.';
 
 export interface ServiceDefinition {
   id: string;
@@ -44,10 +50,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Followers',
     category: 'followers',
     description:
-      'TikTok follower promotion service for creators and businesses.',
+      'TikTok follower promotion service for creators and businesses looking to expand their social media presence.',
     pricePerUnit: 10,
     unit: 'per follower',
-    delivery: '< 1 hour',
+    delivery: 'Usually starts within 1 hour',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 100000,
     popular: true,
@@ -63,10 +69,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Likes',
     category: 'likes',
     description:
-      'TikTok likes promotion service for supported videos.',
+      'TikTok likes promotion service for supported videos and content.',
     pricePerUnit: 10,
     unit: 'per like',
-    delivery: '< 15 min',
+    delivery: 'Usually starts within 15 minutes',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 500000,
     popular: true,
@@ -82,10 +88,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Views',
     category: 'views',
     description:
-      'TikTok video views promotion service.',
+      'TikTok video views promotion service for supported public videos.',
     pricePerUnit: 10,
     unit: 'per view',
-    delivery: '< 10 min',
+    delivery: 'Usually starts within 10 minutes',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 10000000,
     popular: false,
@@ -102,10 +108,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Followers',
     category: 'followers',
     description:
-      'Instagram follower promotion service. No password required.',
+      'Instagram follower promotion service for supported public profiles. No password required.',
     pricePerUnit: 10,
     unit: 'per follower',
-    delivery: '< 2 hours',
+    delivery: 'Usually starts within 2 hours',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 100000,
     popular: true,
@@ -124,7 +130,7 @@ export const ALL_SERVICES: ServiceDefinition[] = [
       'Instagram likes promotion service for supported posts and content.',
     pricePerUnit: 10,
     unit: 'per like',
-    delivery: '< 30 min',
+    delivery: 'Usually starts within 30 minutes',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 50000,
     popular: true,
@@ -140,10 +146,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Reel Views',
     category: 'views',
     description:
-      'Instagram Reel views promotion service.',
+      'Instagram Reel views promotion service for supported public content.',
     pricePerUnit: 10,
     unit: 'per view',
-    delivery: '< 20 min',
+    delivery: 'Usually starts within 20 minutes',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 5000000,
     popular: false,
@@ -160,10 +166,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Followers',
     category: 'followers',
     description:
-      'X follower promotion service for supported profiles.',
+      'X follower promotion service for supported public profiles.',
     pricePerUnit: 10,
     unit: 'per follower',
-    delivery: '< 1 hour',
+    delivery: 'Usually starts within 1 hour',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 75000,
     popular: true,
@@ -179,10 +185,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Likes',
     category: 'likes',
     description:
-      'X post likes promotion service.',
+      'X post likes promotion service for supported public posts.',
     pricePerUnit: 10,
     unit: 'per like',
-    delivery: '< 30 min',
+    delivery: 'Usually starts within 30 minutes',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 100000,
     popular: false,
@@ -198,10 +204,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Views',
     category: 'views',
     description:
-      'X post views promotion service.',
+      'X post views promotion service for supported public posts.',
     pricePerUnit: 10,
     unit: 'per view',
-    delivery: '< 20 min',
+    delivery: 'Usually starts within 20 minutes',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 5000000,
     popular: false,
@@ -218,10 +224,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Followers',
     category: 'followers',
     description:
-      'Snapchat follower promotion service.',
+      'Snapchat follower promotion service for supported public profiles.',
     pricePerUnit: 10,
     unit: 'per follower',
-    delivery: '< 4 hours',
+    delivery: 'Usually starts within 4 hours',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 50000,
     popular: false,
@@ -237,10 +243,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Story Views',
     category: 'views',
     description:
-      'Snapchat story views promotion service.',
+      'Snapchat story views promotion service for supported public stories.',
     pricePerUnit: 10,
     unit: 'per view',
-    delivery: '< 15 min',
+    delivery: 'Usually starts within 15 minutes',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 500000,
     popular: true,
@@ -257,10 +263,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Channel Members',
     category: 'members',
     description:
-      'Telegram channel member promotion service.',
+      'Telegram channel member promotion service for supported public channels.',
     pricePerUnit: 10,
     unit: 'per member',
-    delivery: '< 2 hours',
+    delivery: 'Usually starts within 2 hours',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 200000,
     popular: true,
@@ -276,10 +282,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Group Members',
     category: 'members',
     description:
-      'Telegram group member promotion service.',
+      'Telegram group member promotion service for supported groups.',
     pricePerUnit: 10,
     unit: 'per member',
-    delivery: '< 3 hours',
+    delivery: 'Usually starts within 3 hours',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 100000,
     popular: false,
@@ -295,10 +301,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Channel Subscribers',
     category: 'subscribers',
     description:
-      'Telegram channel subscriber promotion service.',
+      'Telegram channel subscriber promotion service for supported public channels.',
     pricePerUnit: 10,
     unit: 'per subscriber',
-    delivery: '< 2 hours',
+    delivery: 'Usually starts within 2 hours',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 200000,
     popular: false,
@@ -315,10 +321,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Likes',
     category: 'likes',
     description:
-      'YouTube video likes promotion service.',
+      'YouTube video likes promotion service for supported public videos.',
     pricePerUnit: 15,
     unit: 'per like',
-    delivery: '< 1 hour',
+    delivery: 'Usually starts within 1 hour',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 100000,
     popular: true,
@@ -334,10 +340,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Views',
     category: 'views',
     description:
-      'YouTube video views promotion service.',
+      'YouTube video views promotion service for supported public videos.',
     pricePerUnit: 20,
     unit: 'per view',
-    delivery: '< 2 hours',
+    delivery: 'Usually starts within 2 hours',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 10000000,
     popular: true,
@@ -353,10 +359,10 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     service: 'Subscribers',
     category: 'subscribers',
     description:
-      'YouTube subscriber promotion service.',
+      'YouTube subscriber promotion service for supported public channels.',
     pricePerUnit: 50,
     unit: 'per subscriber',
-    delivery: '< 4 hours',
+    delivery: 'Usually starts within 4 hours',
     minQty: MINIMUM_ORDER_QTY,
     maxQty: 50000,
     popular: true,
@@ -364,7 +370,9 @@ export const ALL_SERVICES: ServiceDefinition[] = [
   },
 ];
 
-/** Group services by platform for the order form */
+/**
+ * Group services by platform for the order form.
+ */
 export const SERVICES_BY_PLATFORM: Record<
   string,
   ServiceDefinition[]
@@ -381,7 +389,9 @@ export const SERVICES_BY_PLATFORM: Record<
   {} as Record<string, ServiceDefinition[]>
 );
 
-/** All platform names in display order */
+/**
+ * All platform names in display order.
+ */
 export const PLATFORMS = [
   'TikTok',
   'Instagram',
@@ -391,7 +401,9 @@ export const PLATFORMS = [
   'YouTube',
 ];
 
-/** Calculate total price */
+/**
+ * Calculate total price.
+ */
 export function calcTotal(
   pricePerUnit: number,
   quantity: number
@@ -399,7 +411,9 @@ export function calcTotal(
   return Math.round(pricePerUnit * quantity);
 }
 
-/** Get a service by its ID */
+/**
+ * Get a service by its ID.
+ */
 export function getServiceById(
   id: string
 ): ServiceDefinition | undefined {
