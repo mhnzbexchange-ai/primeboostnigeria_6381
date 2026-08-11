@@ -5,9 +5,14 @@ import {
   useContext,
   useEffect,
   useState,
+  useMemo,
 } from 'react';
 
-import type { Session, User } from '@supabase/supabase-js';
+import type {
+  Session,
+  User,
+} from '@supabase/supabase-js';
+
 import { createClient } from '@/lib/supabase/client';
 
 type AuthContextType = {
@@ -76,7 +81,11 @@ export const AuthProvider = ({
   const [loading, setLoading] =
     useState(true);
 
-  const supabase = createClient();
+  // Create ONE stable Supabase browser client.
+  const supabase = useMemo(
+    () => createClient(),
+    []
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -84,13 +93,42 @@ export const AuthProvider = ({
     const loadSession = async () => {
       try {
         const {
-          data: { session },
+          data,
+          error,
         } = await supabase.auth.getSession();
 
         if (!mounted) return;
 
-        setSession(session);
-        setUser(session?.user ?? null);
+        if (error) {
+          console.error(
+            'Supabase session error:',
+            error
+          );
+
+          // Clear any broken local session.
+          try {
+            await supabase.auth.signOut({
+              scope: 'local',
+            });
+          } catch (signOutError) {
+            console.error(
+              'Failed to clear invalid session:',
+              signOutError
+            );
+          }
+
+          setSession(null);
+          setUser(null);
+          return;
+        }
+
+        const currentSession =
+          data?.session ?? null;
+
+        setSession(currentSession);
+        setUser(
+          currentSession?.user ?? null
+        );
       } catch (error) {
         console.error(
           'Failed to load Supabase session:',
@@ -111,17 +149,20 @@ export const AuthProvider = ({
     loadSession();
 
     const {
-      data: { subscription },
-    } =
-      supabase.auth.onAuthStateChange(
-        async (_event, session) => {
-          if (!mounted) return;
+      data: {
+        subscription,
+      },
+    } = supabase.auth.onAuthStateChange(
+      (_event, currentSession) => {
+        if (!mounted) return;
 
-          setSession(session);
-          setUser(session?.user ?? null);
-          setLoading(false);
-        }
-      );
+        setSession(currentSession);
+        setUser(
+          currentSession?.user ?? null
+        );
+        setLoading(false);
+      }
+    );
 
     return () => {
       mounted = false;
@@ -154,9 +195,12 @@ export const AuthProvider = ({
       metadata?.fullName ||
       '';
 
-    const { data, error } =
+    const {
+      data,
+      error,
+    } =
       await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
 
         options: {
@@ -187,13 +231,20 @@ export const AuthProvider = ({
 
     if (error) {
       throw new Error(
-        error.message || 'Sign up failed'
+        error.message ||
+          'Sign up failed'
       );
     }
 
+    // If email confirmation is required,
+    // Supabase normally returns a user
+    // without a session.
     if (data?.session) {
       setSession(data.session);
       setUser(data.user);
+    } else {
+      setSession(null);
+      setUser(null);
     }
 
     return data;
@@ -207,20 +258,50 @@ export const AuthProvider = ({
     email: string,
     password: string
   ) => {
-    const { data, error } =
+    const {
+      data,
+      error,
+    } =
       await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
     if (error) {
+      const message =
+        error.message?.toLowerCase() || '';
+
       if (
-        error.message
-          ?.toLowerCase()
-          .includes('email not confirmed')
+        message.includes(
+          'email not confirmed'
+        )
       ) {
         throw new Error(
           'EMAIL_NOT_VERIFIED'
+        );
+      }
+
+      if (
+        message.includes(
+          'refresh token'
+        )
+      ) {
+        try {
+          await supabase.auth.signOut({
+            scope: 'local',
+          });
+        } catch (clearError) {
+          console.error(
+            'Failed to clear stale session:',
+            clearError
+          );
+        }
+
+        setSession(null);
+        setUser(null);
+
+        throw new Error(
+          'Your previous login session expired. Please log in again.'
         );
       }
 
@@ -239,8 +320,19 @@ export const AuthProvider = ({
       );
     }
 
-    if (!data.user.email_confirmed_at) {
-      await supabase.auth.signOut();
+    if (
+      !data.user.email_confirmed_at
+    ) {
+      try {
+        await supabase.auth.signOut({
+          scope: 'local',
+        });
+      } catch (signOutError) {
+        console.error(
+          'Failed to clear unverified session:',
+          signOutError
+        );
+      }
 
       setSession(null);
       setUser(null);
@@ -273,16 +365,14 @@ export const AuthProvider = ({
         data,
         error,
       } =
-        await supabase.auth.signInWithOAuth(
-          {
-            provider: 'google',
+        await supabase.auth.signInWithOAuth({
+          provider: 'google',
 
-            options: {
-              redirectTo:
-                `${siteUrl}/auth/callback`,
-            },
-          }
-        );
+          options: {
+            redirectTo:
+              `${siteUrl}/auth/callback`,
+          },
+        });
 
       if (error) {
         console.error(
@@ -312,7 +402,10 @@ export const AuthProvider = ({
           ? window.location.origin
           : '');
 
-      const { data, error } =
+      const {
+        data,
+        error,
+      } =
         await supabase.auth.resend({
           type: 'signup',
           email: email.trim(),
@@ -345,10 +438,15 @@ export const AuthProvider = ({
 
   const signOut = async () => {
     const { error } =
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({
+        scope: 'local',
+      });
 
     if (error) {
-      throw error;
+      console.error(
+        'Sign out error:',
+        error
+      );
     }
 
     setSession(null);
@@ -394,7 +492,7 @@ export const AuthProvider = ({
   const getCurrentUser =
     async () => {
       const {
-        data: { user },
+        data,
         error,
       } =
         await supabase.auth.getUser();
@@ -403,7 +501,7 @@ export const AuthProvider = ({
         throw error;
       }
 
-      return user;
+      return data.user;
     };
 
   // =========================
@@ -425,7 +523,10 @@ export const AuthProvider = ({
         return null;
       }
 
-      const { data, error } =
+      const {
+        data,
+        error,
+      } =
         await supabase
           .from('user_profiles')
           .select('*')
