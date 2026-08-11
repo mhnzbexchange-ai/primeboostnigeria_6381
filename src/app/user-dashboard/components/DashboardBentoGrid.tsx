@@ -30,7 +30,7 @@ interface DashboardStats {
 export default function DashboardBentoGrid() {
   const [fundModalOpen, setFundModalOpen] = useState(false);
   const [fundAmount, setFundAmount] = useState('');
-  const [selectedMethod] = useState('paystack');
+  const [selectedMethod, setSelectedMethod] = useState('paystack');
   const [fundLoading, setFundLoading] = useState(false);
 
   const [stats, setStats] = useState<DashboardStats>({
@@ -135,7 +135,7 @@ export default function DashboardBentoGrid() {
     }
   };
 
-  // REAL PAYSTACK FUNDING
+  // PAYSTACK FUNDING
   const handleFundWallet = async () => {
     const amount = Number(fundAmount);
 
@@ -160,9 +160,9 @@ export default function DashboardBentoGrid() {
       return;
     }
 
-    if (selectedMethod !== 'paystack') {
-      toast.error(
-        'Only Paystack payments are currently available.'
+    if (selectedMethod === 'bank_transfer') {
+      toast.info(
+        'Bank Transfer setup is coming next. No payment has been made.'
       );
       return;
     }
@@ -197,14 +197,12 @@ export default function DashboardBentoGrid() {
         );
       }
 
-      // IMPORTANT:
       // Nothing is added to the wallet here.
       // Paystack must confirm the payment first.
 
       setFundModalOpen(false);
       setFundAmount('');
 
-      // Send customer to Paystack checkout
       window.location.href =
         data.authorization_url;
     } catch (error: any) {
@@ -247,7 +245,6 @@ export default function DashboardBentoGrid() {
           />
 
           <div className="flex items-start justify-between mb-4 relative z-10">
-
             <div>
               <p className="section-label mb-1">
                 WALLET BALANCE
@@ -275,7 +272,6 @@ export default function DashboardBentoGrid() {
           </div>
 
           <div className="flex gap-2 relative z-10">
-
             <button
               onClick={() =>
                 setFundModalOpen(true)
@@ -289,15 +285,12 @@ export default function DashboardBentoGrid() {
             <button className="btn-outline-gold px-4 py-2 rounded-lg text-xs font-semibold">
               Withdraw
             </button>
-
           </div>
         </div>
 
         {/* Total Orders */}
         <div className="card-base card-gradient-bg hover:border-primary/20 transition-all">
-
           <div className="flex items-center justify-between mb-3">
-
             <p className="section-label">
               TOTAL ORDERS
             </p>
@@ -308,7 +301,6 @@ export default function DashboardBentoGrid() {
                 className="text-blue-400"
               />
             </div>
-
           </div>
 
           <div className="text-3xl font-extrabold tabular-nums mb-1">
@@ -330,7 +322,6 @@ export default function DashboardBentoGrid() {
               {stats.failedOrders} failed
             </span>
           </div>
-
         </div>
 
         {/* Active Orders */}
@@ -341,9 +332,7 @@ export default function DashboardBentoGrid() {
               : ''
           }`}
         >
-
           <div className="flex items-center justify-between mb-3">
-
             <p className="section-label">
               ACTIVE ORDERS
             </p>
@@ -354,7 +343,6 @@ export default function DashboardBentoGrid() {
                 className="text-yellow-400 animate-pulse"
               />
             </div>
-
           </div>
 
           <div className="text-3xl font-extrabold tabular-nums mb-1">
@@ -374,14 +362,11 @@ export default function DashboardBentoGrid() {
               </span>
             </div>
           )}
-
         </div>
 
         {/* This Month */}
         <div className="card-base card-gradient-bg hover:border-primary/20 transition-all">
-
           <div className="flex items-center justify-between mb-3">
-
             <p className="section-label">
               THIS MONTH
             </p>
@@ -392,7 +377,6 @@ export default function DashboardBentoGrid() {
                 className="text-green-400"
               />
             </div>
-
           </div>
 
           <div className="text-2xl font-extrabold tabular-nums mb-1 text-green-400">
@@ -413,14 +397,11 @@ export default function DashboardBentoGrid() {
               style={{ width: '68%' }}
             />
           </div>
-
         </div>
 
         {/* Referral Earnings */}
         <div className="card-base card-gradient-bg hover:border-primary/20 transition-all">
-
           <div className="flex items-center justify-between mb-3">
-
             <p className="section-label">
               REFERRAL EARNINGS
             </p>
@@ -431,7 +412,6 @@ export default function DashboardBentoGrid() {
                 className="text-primary"
               />
             </div>
-
           </div>
 
           <div className="text-2xl font-extrabold tabular-nums mb-1 gold-gradient-text">
@@ -447,7 +427,6 @@ export default function DashboardBentoGrid() {
           </p>
 
           <div className="mt-2 flex items-center gap-1.5">
-
             <span className="badge-base status-pending">
               ₦
               {stats.pendingReferralWithdrawal.toLocaleString(
@@ -455,9 +434,7 @@ export default function DashboardBentoGrid() {
               )}{' '}
               pending
             </span>
-
           </div>
-
         </div>
 
         {/* Needs Attention */}
@@ -468,9 +445,7 @@ export default function DashboardBentoGrid() {
               : ''
           }`}
         >
-
           <div className="flex items-center justify-between mb-3">
-
             <p className="section-label text-red-400/70">
               NEEDS ATTENTION
             </p>
@@ -481,7 +456,6 @@ export default function DashboardBentoGrid() {
                 className="text-red-400"
               />
             </div>
-
           </div>
 
           <div className="text-2xl font-extrabold tabular-nums mb-1 text-red-400">
@@ -499,14 +473,11 @@ export default function DashboardBentoGrid() {
               View failed orders →
             </button>
           </div>
-
         </div>
 
         {/* Completed */}
         <div className="card-base card-gradient-bg hover:border-primary/20 transition-all">
-
           <div className="flex items-center justify-between mb-3">
-
             <p className="section-label">
               COMPLETED
             </p>
@@ -517,7 +488,6 @@ export default function DashboardBentoGrid() {
                 className="text-primary"
               />
             </div>
-
           </div>
 
           <div className="text-2xl font-extrabold tabular-nums mb-1 text-primary">
@@ -531,11 +501,8 @@ export default function DashboardBentoGrid() {
           </p>
 
           <div className="mt-2">
-
             <div className="flex items-center gap-1.5">
-
               <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-
                 <div
                   className="h-full bg-green-400 rounded-full"
                   style={{
@@ -550,7 +517,6 @@ export default function DashboardBentoGrid() {
                     }%`,
                   }}
                 />
-
               </div>
 
               <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">
@@ -563,11 +529,8 @@ export default function DashboardBentoGrid() {
                   : 0}
                 %
               </span>
-
             </div>
-
           </div>
-
         </div>
       </div>
 
@@ -577,11 +540,10 @@ export default function DashboardBentoGrid() {
         onClose={() => setFundModalOpen(false)}
         title="Fund Your Wallet"
       >
-
         <div className="space-y-5">
 
+          {/* Amount */}
           <div>
-
             <label className="block text-sm font-medium mb-2">
               Enter Amount (₦)
             </label>
@@ -601,18 +563,15 @@ export default function DashboardBentoGrid() {
             <p className="text-xs text-muted-foreground mt-1.5">
               Minimum: ₦500 · Maximum: ₦500,000
             </p>
-
           </div>
 
           {/* Quick Amounts */}
           <div>
-
             <p className="text-xs font-medium text-muted-foreground mb-2">
               Quick amounts
             </p>
 
             <div className="grid grid-cols-3 gap-2">
-
               {quickAmounts.map((amt) => (
                 <button
                   key={`quick-${amt}`}
@@ -629,37 +588,101 @@ export default function DashboardBentoGrid() {
                   ₦{amt.toLocaleString('en-NG')}
                 </button>
               ))}
-
             </div>
-
           </div>
 
-          {/* Paystack */}
+          {/* Payment Method */}
           <div>
-
             <label className="block text-sm font-medium mb-2">
               Payment Method
             </label>
 
-            <div className="border border-primary bg-primary/10 rounded-lg p-3 flex items-center gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 
-              <span className="text-xl">
-                💳
-              </span>
+              {/* Paystack */}
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedMethod('paystack')
+                }
+                className={`border rounded-lg p-3 flex items-center gap-3 text-left transition-all ${
+                  selectedMethod === 'paystack'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <span className="text-xl">
+                  💳
+                </span>
 
-              <div>
-                <p className="text-sm font-semibold text-primary">
-                  Paystack
-                </p>
+                <div>
+                  <p
+                    className={`text-sm font-semibold ${
+                      selectedMethod === 'paystack'
+                        ? 'text-primary'
+                        : ''
+                    }`}
+                  >
+                    Paystack
+                  </p>
 
-                <p className="text-xs text-muted-foreground">
-                  Secure payment
-                </p>
-              </div>
+                  <p className="text-xs text-muted-foreground">
+                    Secure online payment
+                  </p>
+                </div>
+              </button>
+
+              {/* Bank Transfer */}
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedMethod('bank_transfer')
+                }
+                className={`border rounded-lg p-3 flex items-center gap-3 text-left transition-all ${
+                  selectedMethod === 'bank_transfer'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <span className="text-xl">
+                  🏦
+                </span>
+
+                <div>
+                  <p
+                    className={`text-sm font-semibold ${
+                      selectedMethod === 'bank_transfer'
+                        ? 'text-primary'
+                        : ''
+                    }`}
+                  >
+                    Bank Transfer
+                  </p>
+
+                  <p className="text-xs text-muted-foreground">
+                    Manual payment
+                  </p>
+                </div>
+              </button>
 
             </div>
-
           </div>
+
+          {/* Bank Transfer Notice */}
+          {selectedMethod === 'bank_transfer' && (
+            <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+              <p className="text-sm font-semibold text-yellow-400 mb-1">
+                Bank Transfer
+              </p>
+
+              <p className="text-xs text-muted-foreground">
+                Bank transfer payment will be completed
+                manually. You will receive the bank
+                details and submit your payment proof
+                in the next step.
+              </p>
+            </div>
+          )}
 
           {/* Amount Summary */}
           {fundAmount &&
@@ -667,7 +690,6 @@ export default function DashboardBentoGrid() {
               <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
 
                 <div className="flex justify-between text-sm">
-
                   <span className="text-muted-foreground">
                     Amount
                   </span>
@@ -678,11 +700,9 @@ export default function DashboardBentoGrid() {
                       fundAmount
                     ).toLocaleString('en-NG')}
                   </span>
-
                 </div>
 
                 <div className="flex justify-between text-sm mt-1">
-
                   <span className="text-muted-foreground">
                     Processing fee
                   </span>
@@ -690,11 +710,9 @@ export default function DashboardBentoGrid() {
                   <span className="font-semibold tabular-nums text-green-400">
                     ₦0
                   </span>
-
                 </div>
 
                 <div className="border-t border-border mt-2 pt-2 flex justify-between">
-
                   <span className="font-semibold text-sm">
                     Total
                   </span>
@@ -705,13 +723,12 @@ export default function DashboardBentoGrid() {
                       fundAmount
                     ).toLocaleString('en-NG')}
                   </span>
-
                 </div>
 
               </div>
             )}
 
-          {/* Pay Button */}
+          {/* Payment Button */}
           <button
             onClick={handleFundWallet}
             disabled={
@@ -724,13 +741,14 @@ export default function DashboardBentoGrid() {
           >
             {fundLoading
               ? 'Opening Paystack...'
+              : selectedMethod === 'bank_transfer'
+              ? `Continue with Bank Transfer`
               : `Pay ₦${Number(
                   fundAmount || 0
                 ).toLocaleString('en-NG')}`}
           </button>
 
         </div>
-
       </Modal>
     </>
   );
