@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-export default function PaymentCallbackPage() {
+function PaymentCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -15,7 +15,7 @@ export default function PaymentCallbackPage() {
 
   useEffect(() => {
     const verifyPayment = async () => {
-      const reference = searchParams.get('reference');
+      const reference = searchParams?.get('reference');
 
       if (!reference) {
         setStatus('failed');
@@ -34,23 +34,23 @@ export default function PaymentCallbackPage() {
           }),
         });
 
-        const data = await response.json();
+        const data = await response?.json();
 
-        if (!response.ok || !data.success) {
+        if (!response?.ok || !data?.success) {
           setStatus('failed');
-          setMessage(data.error || 'Payment verification failed.');
+          setMessage(data?.error || 'Payment verification failed.');
           return;
         }
 
         setStatus('success');
         setMessage(
-          `₦${Number(data.amount || 0).toLocaleString(
+          `₦${Number(data?.amount || 0)?.toLocaleString(
             'en-NG'
           )} has been added to your wallet.`
         );
 
         setTimeout(() => {
-          router.push('/dashboard');
+          router?.push('/dashboard');
         }, 2500);
       } catch (error) {
         console.error('Payment verification error:', error);
@@ -122,7 +122,7 @@ export default function PaymentCallbackPage() {
             </p>
 
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router?.push('/dashboard')}
               className="btn-primary mt-6 px-5 py-3 rounded-xl text-sm font-semibold"
             >
               Back to Dashboard
@@ -131,5 +131,22 @@ export default function PaymentCallbackPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PaymentCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="w-full max-w-md text-center card-base card-gradient-bg p-8 rounded-2xl">
+            <Loader2 size={50} className="mx-auto mb-5 text-primary animate-spin" />
+            <h1 className="text-xl font-bold mb-2">Loading...</h1>
+          </div>
+        </div>
+      }
+    >
+      <PaymentCallbackContent />
+    </Suspense>
   );
 }

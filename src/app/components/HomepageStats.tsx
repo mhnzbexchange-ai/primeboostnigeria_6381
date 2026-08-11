@@ -7,6 +7,8 @@ import {
   Clock,
   Headphones,
 } from 'lucide-react';
+import Icon from '@/components/ui/AppIcon';
+
 
 const highlights = [
   {
@@ -73,30 +75,26 @@ export default function HomepageStats() {
         {/* Highlights */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-          {highlights.map((item) => {
-            const Icon = item.icon;
+          {highlights?.map((item) => {
+            const Icon = item?.icon;
 
             return (
               <div
-                key={item.id}
+                key={item?.id}
                 className="card-base card-gradient-bg group flex flex-col items-center text-center transition-all duration-300 hover:border-primary/30 hover:glow-gold-sm"
               >
-
                 <div className="mb-4 rounded-xl bg-muted/50 p-3 transition-colors group-hover:bg-primary/10">
                   <Icon
                     size={24}
-                    className={item.color}
+                    className={item?.color}
                   />
                 </div>
-
                 <h3 className="mb-2 text-sm font-semibold">
-                  {item.title}
+                  {item?.title}
                 </h3>
-
                 <p className="text-xs leading-relaxed text-muted-foreground">
-                  {item.description}
+                  {item?.description}
                 </p>
-
               </div>
             );
           })}
