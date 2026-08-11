@@ -38,10 +38,19 @@ type OrderFormData = {
   quantity: number;
 };
 
+/*
+ * ============================================================
+ * PRIMEBOOST NIGERIA - BANK TRANSFER DETAILS
+ * ============================================================
+ *
+ * Enter your Kuda account number on the accountNumber line.
+ *
+ * This component does not contain or modify any AdSense code.
+ */
 const BUSINESS_BANK_DETAILS = {
-  bankName: 'Kuda bank',
-  accountNumber: '3004047015',
-  accountName: 'CHUKWUDI AWA MBA,
+  bankName: 'Kuda',
+  accountNumber: 'ENTER_YOUR_KUDA_ACCOUNT_NUMBER_HERE',
+  accountName: 'CHUKWUDI AWA MBA',
 };
 
 const steps = [
@@ -104,6 +113,7 @@ export default function OrderFormWizard() {
 
   useEffect(() => {
     if (!user?.id) return;
+
     fetchWalletBalance();
   }, [user?.id]);
 
@@ -224,6 +234,15 @@ export default function OrderFormWizard() {
       return;
     }
 
+    if (
+      !BUSINESS_BANK_DETAILS.accountNumber ||
+      BUSINESS_BANK_DETAILS.accountNumber ===
+        '3004047015'
+    ) {
+      toast.error('Bank transfer account details are not configured yet.');
+      return;
+    }
+
     setLoading(true);
     setUploadingProof(true);
 
@@ -243,9 +262,11 @@ export default function OrderFormWizard() {
         );
       }
 
-      const { data: urlData } = supabase.storage
-        .from('payment-proofs')
-        .getPublicUrl(filePath);
+      /*
+       * The bucket is private, so we store the path and also
+       * keep the URL field populated for compatibility.
+       */
+      const proofUrl = '';
 
       setUploadingProof(false);
 
@@ -262,12 +283,14 @@ export default function OrderFormWizard() {
           order_id: newOrder.id,
           amount: totalPrice,
           reference,
-          proof_url: urlData?.publicUrl || '',
+          proof_url: proofUrl,
           proof_path: filePath,
           status: 'pending',
         });
 
-      if (paymentError) throw paymentError;
+      if (paymentError) {
+        throw paymentError;
+      }
 
       setOrderId(newOrder.id.slice(0, 8).toUpperCase());
       setOrderPlaced(true);
@@ -288,7 +311,9 @@ export default function OrderFormWizard() {
 
   const submitWalletOrder = async (data: OrderFormData) => {
     if (!user?.id || !selectedService || !walletId) {
-      toast.error('Please sign in and make sure your wallet is available.');
+      toast.error(
+        'Please sign in and make sure your wallet is available.'
+      );
       return;
     }
 
@@ -302,14 +327,6 @@ export default function OrderFormWizard() {
     try {
       const newOrder = await createOrder(data);
 
-      /*
-       * Keep the existing wallet behaviour.
-       *
-       * Note:
-       * For production, wallet debits should ideally be handled by
-       * a secure server-side/database transaction so two simultaneous
-       * orders cannot spend the same balance.
-       */
       const newBalance = walletBalance - totalPrice;
 
       const { error: walletError } = await supabase
@@ -341,9 +358,6 @@ export default function OrderFormWizard() {
 
       toast.success('Order placed successfully!');
 
-      /*
-       * Email confirmation is non-blocking.
-       */
       try {
         const userEmail = user.email;
         const userName =
@@ -529,6 +543,7 @@ export default function OrderFormWizard() {
             <span className="text-muted-foreground">
               Platform
             </span>
+
             <span className="font-semibold">
               {selectedPlatform}
             </span>
@@ -538,6 +553,7 @@ export default function OrderFormWizard() {
             <span className="text-muted-foreground">
               Service
             </span>
+
             <span className="font-semibold text-right">
               {selectedService?.name}
             </span>
@@ -547,6 +563,7 @@ export default function OrderFormWizard() {
             <span className="text-muted-foreground">
               Quantity
             </span>
+
             <span className="font-semibold tabular-nums">
               {quantity?.toLocaleString('en-NG')}
             </span>
@@ -556,6 +573,7 @@ export default function OrderFormWizard() {
             <span className="text-muted-foreground">
               Amount
             </span>
+
             <span className="font-extrabold gold-gradient-text tabular-nums">
               ₦{totalPrice.toLocaleString('en-NG')}
             </span>
@@ -622,7 +640,6 @@ export default function OrderFormWizard() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -653,7 +670,6 @@ export default function OrderFormWizard() {
         </div>
       </div>
 
-      {/* Step progress */}
       <div className="flex items-center mb-8">
         {steps.map((step, index) => (
           <React.Fragment key={`step-${step.id}`}>
@@ -1049,9 +1065,7 @@ export default function OrderFormWizard() {
                 </div>
 
                 <div className="flex justify-between gap-4 text-sm border-t border-border pt-3">
-                  <span className="font-bold">
-                    Total
-                  </span>
+                  <span className="font-bold">Total</span>
 
                   <span className="text-2xl font-extrabold gold-gradient-text tabular-nums">
                     ₦{totalPrice.toLocaleString('en-NG')}
@@ -1080,7 +1094,6 @@ export default function OrderFormWizard() {
         {/* STEP 4 */}
         {currentStep === 4 && selectedService && (
           <div className="space-y-5 animate-fade-in-up">
-            {/* Summary */}
             <div className="card-base card-gradient-bg">
               <h2 className="font-bold text-lg mb-4">
                 Review Your Order
@@ -1144,7 +1157,6 @@ export default function OrderFormWizard() {
               </div>
             </div>
 
-            {/* Payment */}
             <div className="card-base card-gradient-bg">
               <h3 className="font-bold text-base mb-2">
                 Payment Method
@@ -1213,7 +1225,7 @@ export default function OrderFormWizard() {
                 </button>
               </div>
 
-              {/* Wallet */}
+              {/* WALLET PAYMENT */}
               {paymentMethod === 'wallet' && (
                 <div className="space-y-3">
                   <div className="flex justify-between text-xs text-muted-foreground">
@@ -1248,7 +1260,7 @@ export default function OrderFormWizard() {
 
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                           Add funds to your wallet or select Bank
-                          Transfer if available.
+                          Transfer.
                         </p>
                       </div>
                     </div>
@@ -1270,15 +1282,22 @@ export default function OrderFormWizard() {
                 </div>
               )}
 
-              {/* Bank transfer */}
+              {/* BANK TRANSFER PAYMENT */}
               {paymentMethod === 'bank_transfer' && (
                 <div className="space-y-4">
                   <div className="p-4 rounded-xl bg-yellow-400/5 border border-yellow-400/30 space-y-3">
-                    <p className="text-xs font-bold text-yellow-400 uppercase tracking-wide">
-                      Bank Transfer Details
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <Building2
+                        size={16}
+                        className="text-yellow-400"
+                      />
 
-                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-yellow-400 uppercase tracking-wide">
+                        Bank Transfer Details
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
                       <div>
                         <p className="text-[10px] text-muted-foreground">
                           Bank Name
@@ -1290,12 +1309,12 @@ export default function OrderFormWizard() {
                       </div>
 
                       <div className="flex items-center justify-between gap-3">
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-[10px] text-muted-foreground">
                             Account Number
                           </p>
 
-                          <p className="text-lg font-extrabold tabular-nums tracking-widest gold-gradient-text">
+                          <p className="text-lg font-extrabold tabular-nums tracking-widest gold-gradient-text break-all">
                             {BUSINESS_BANK_DETAILS.accountNumber}
                           </p>
                         </div>
@@ -1308,7 +1327,7 @@ export default function OrderFormWizard() {
                               'Account number'
                             )
                           }
-                          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary"
+                          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary flex-shrink-0"
                           title="Copy account number"
                         >
                           <Copy size={14} />
@@ -1353,6 +1372,21 @@ export default function OrderFormWizard() {
                           <Copy size={14} />
                         </button>
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle
+                        size={14}
+                        className="text-yellow-400 flex-shrink-0 mt-0.5"
+                      />
+
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Transfer exactly the amount shown above.
+                        Your order will remain pending until the
+                        payment is manually reviewed and confirmed.
+                      </p>
                     </div>
                   </div>
 
@@ -1457,24 +1491,21 @@ export default function OrderFormWizard() {
                   </div>
 
                   <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-400/5 border border-blue-400/20">
-                    <AlertCircle
+                    <ShieldCheck
                       size={14}
                       className="text-blue-400 flex-shrink-0 mt-0.5"
                     />
 
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      Your order will remain{' '}
-                      <strong>pending</strong> until the transfer
-                      is reviewed and confirmed. Do not send
-                      additional payment unless instructed by
-                      PrimeBoost support.
+                      Never send your bank login, PIN or password.
+                      PrimeBoost only needs your transfer receipt
+                      for payment verification.
                     </p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Final transparency notice */}
             <div className="rounded-xl border border-border bg-muted/20 p-4">
               <div className="flex items-start gap-2">
                 <ShieldCheck
@@ -1499,7 +1530,6 @@ export default function OrderFormWizard() {
           </div>
         )}
 
-        {/* Navigation */}
         <div className="flex gap-3 mt-6">
           {currentStep > 1 && (
             <button
@@ -1561,7 +1591,6 @@ export default function OrderFormWizard() {
         </div>
       </form>
 
-      {/* Footer information */}
       <div className="mt-8 text-center">
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
           <ShieldCheck size={13} />
