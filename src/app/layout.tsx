@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans } from 'next/font/google';
-import Script from 'next/script';
+
 import '../styles/tailwind.css';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -40,7 +40,9 @@ export default function RootLayout({
           name="google-adsense-account"
           content="ca-pub-8244011032789060"
         />
-      </head>
+
+        <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fprimeboost7331back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20" />
+        <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.2" /></head>
 
       <body className={dmSans.className}>
         <AuthProvider>
@@ -59,17 +61,6 @@ export default function RootLayout({
         />
 
         {/* Rocket */}
-        <Script
-          type="module"
-          src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fprimeboost7331back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20"
-          strategy="afterInteractive"
-        />
-
-        <Script
-          type="module"
-          src="https://static.rocket.new/rocket-shot.js?v=0.0.2"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );
