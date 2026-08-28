@@ -6,6 +6,7 @@ import AdminRevenueChart from './components/AdminRevenueChart';
 import AdminOrdersTable from './components/AdminOrdersTable';
 import AdminPendingPayments from './components/AdminPendingPayments';
 import AdminPlatformChart from './components/AdminPlatformChart';
+import AdminPaystackTransactions from './components/AdminPaystackTransactions';
 
 export default function AdminDashboardPage() {
   return (
@@ -54,6 +55,8 @@ export default function AdminDashboardPage() {
 
           <AdminPendingPayments />
         </div>
+
+        <AdminPaystackTransactions />
 
       </div>
     </AppLayout>
