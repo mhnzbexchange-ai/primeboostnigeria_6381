@@ -7,10 +7,7 @@ export async function POST(request: NextRequest) {
 
     if (!reference || typeof reference !== 'string') {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Payment reference is required',
-        },
+        { success: false, error: 'Payment reference is required' },
         { status: 400 }
       );
     }
@@ -19,10 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!secretKey) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Paystack is not configured correctly',
-        },
+        { success: false, error: 'Paystack is not configured correctly' },
         { status: 500 }
       );
     }
@@ -37,19 +31,14 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'You must be logged in to verify this payment',
-        },
+        { success: false, error: 'You must be logged in to verify this payment' },
         { status: 401 }
       );
     }
 
     // Ask Paystack to verify the transaction
     const response = await fetch(
-      `https://api.paystack.co/transaction/verify/${encodeURIComponent(
-        reference
-      )}`,
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
       {
         method: 'GET',
         headers: {
@@ -64,12 +53,8 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok || !data.status || !data.data) {
       console.error('Paystack verification failed:', data);
-
       return NextResponse.json(
-        {
-          success: false,
-          error: data?.message || 'Unable to verify payment',
-        },
+        { success: false, error: data?.message || 'Unable to verify payment' },
         { status: 400 }
       );
     }
@@ -79,10 +64,7 @@ export async function POST(request: NextRequest) {
     // Only successful Paystack payments can fund the wallet
     if (payment.status !== 'success') {
       return NextResponse.json(
-        {
-          success: false,
-          error: `Payment was not successful. Status: ${payment.status}`,
-        },
+        { success: false, error: `Payment was not successful. Status: ${payment.status}` },
         { status: 400 }
       );
     }
@@ -92,10 +74,7 @@ export async function POST(request: NextRequest) {
 
     if (!Number.isFinite(amountNaira) || amountNaira < 500) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid payment amount',
-        },
+        { success: false, error: 'Invalid payment amount' },
         { status: 400 }
       );
     }
@@ -107,43 +86,9 @@ export async function POST(request: NextRequest) {
       payment.customer.email.toLowerCase() !== user.email.toLowerCase()
     ) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'This payment does not belong to your account',
-        },
+        { success: false, error: 'This payment does not belong to your account' },
         { status: 403 }
       );
-    }
-
-    // Check if this Paystack reference has already been processed
-    const { data: existingTransaction, error: existingError } =
-      await supabase
-        .from('wallet_transactions')
-        .select('id')
-        .eq('reference', reference)
-        .maybeSingle();
-
-    if (existingError) {
-      console.error('Transaction check error:', existingError);
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Unable to check payment history',
-        },
-        { status: 500 }
-      );
-    }
-
-    // Never credit the same payment twice
-    if (existingTransaction) {
-      return NextResponse.json({
-        success: true,
-        alreadyProcessed: true,
-        amount: amountNaira,
-        reference,
-        message: 'This payment has already been added to your wallet',
-      });
     }
 
     // Find the customer's wallet
@@ -155,94 +100,59 @@ export async function POST(request: NextRequest) {
 
     if (walletError) {
       console.error('Wallet lookup error:', walletError);
-
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Unable to access your wallet',
-        },
+        { success: false, error: 'Unable to access your wallet' },
         { status: 500 }
       );
     }
 
     if (!wallet) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Wallet not found for this account',
-        },
+        { success: false, error: 'Wallet not found for this account' },
         { status: 404 }
       );
     }
 
-    const currentBalance = Number(wallet.balance || 0);
-    const currentTotalFunded = Number(wallet.total_funded || 0);
+    // Atomically credit the wallet via the database function.
+    // The function inserts the transaction record first (protected by a
+    // UNIQUE index on reference), then updates the balance only if the
+    // insert succeeded.  If the reference already exists it returns false
+    // without touching the balance — preventing any double-credit.
+    const { data: credited, error: rpcError } = await supabase.rpc(
+      'credit_wallet_for_payment',
+      {
+        p_user_id: user.id,
+        p_wallet_id: wallet.id,
+        p_amount: amountNaira,
+        p_reference: reference,
+        p_description: 'Wallet funded via Paystack',
+      }
+    );
 
-    // Credit only after Paystack confirmed success
-    const { error: updateWalletError } = await supabase
-      .from('wallets')
-      .update({
-        balance: currentBalance + amountNaira,
-        total_funded: currentTotalFunded + amountNaira,
-      })
-      .eq('id', wallet.id)
-      .eq('user_id', user.id);
-
-    if (updateWalletError) {
-      console.error('Wallet update error:', updateWalletError);
-
+    if (rpcError) {
+      console.error('credit_wallet_for_payment RPC error:', rpcError);
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Payment verified, but wallet update failed',
-        },
+        { success: false, error: 'Payment verified, but wallet update failed' },
         { status: 500 }
       );
     }
 
-    // Save the successful payment
-    const { error: transactionError } = await supabase
-      .from('wallet_transactions')
-      .insert({
-        user_id: user.id,
-        wallet_id: wallet.id,
-        transaction_type: 'credit',
-        amount: amountNaira,
-        reference,
-        description: 'Wallet funded via Paystack',
-      });
-
-    if (transactionError) {
-      console.error(
-        'Transaction recording error:',
-        transactionError
-      );
-
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            'Payment was verified, but the transaction could not be recorded',
-        },
-        { status: 500 }
-      );
-    }
+    // credited === false means the reference was already processed
+    const alreadyProcessed = credited === false;
 
     return NextResponse.json({
       success: true,
-      alreadyProcessed: false,
+      alreadyProcessed,
       amount: amountNaira,
       reference,
-      message: 'Payment verified and wallet funded successfully',
+      message: alreadyProcessed
+        ? 'This payment has already been added to your wallet'
+        : 'Payment verified and wallet funded successfully',
     });
   } catch (error) {
     console.error('Paystack verification error:', error);
-
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Something went wrong while verifying payment',
-      },
+      { success: false, error: 'Something went wrong while verifying payment' },
       { status: 500 }
     );
   }

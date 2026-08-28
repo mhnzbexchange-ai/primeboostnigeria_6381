@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
-  // Return 200 immediately so Paystack doesn't retry
   const event = JSON.parse(body);
 
   try {
@@ -54,6 +53,7 @@ export async function POST(req: NextRequest) {
     console.error('Paystack webhook processing error:', err);
   }
 
+  // Always return 200 so Paystack does not retry
   return NextResponse.json({ received: true }, { status: 200 });
 }
 
@@ -69,18 +69,6 @@ async function handleChargeSuccess(data: {
   if (status !== 'success') return;
 
   const supabase = await createClient();
-
-  // Idempotency: skip if this reference was already processed
-  const { data: existing } = await supabase
-    .from('wallet_transactions')
-    .select('id')
-    .eq('reference', reference)
-    .maybeSingle();
-
-  if (existing) {
-    console.log(`Webhook: reference ${reference} already processed, skipping`);
-    return;
-  }
 
   // Paystack sends amount in kobo
   const amountNaira = Number(amount) / 100;
@@ -98,60 +86,71 @@ async function handleChargeSuccess(data: {
     .maybeSingle();
 
   if (!profile) {
-    console.warn(`Webhook: no profile found for email ${customer.email}`);
+    // Try user_profiles table as fallback
+    const { data: userProfile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('email', customer.email.toLowerCase())
+      .maybeSingle();
+
+    if (!userProfile) {
+      console.warn(`Webhook: no profile found for email ${customer.email}`);
+      return;
+    }
+
+    await creditWallet(supabase, userProfile.id, amountNaira, reference);
     return;
   }
 
+  await creditWallet(supabase, profile.id, amountNaira, reference);
+}
+
+async function creditWallet(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  amountNaira: number,
+  reference: string
+) {
   // Find the user's wallet
   const { data: wallet } = await supabase
     .from('wallets')
-    .select('id, balance, total_funded')
-    .eq('user_id', profile.id)
+    .select('id')
+    .eq('user_id', userId)
     .maybeSingle();
 
   if (!wallet) {
-    console.warn(`Webhook: no wallet found for user ${profile.id}`);
+    console.warn(`Webhook: no wallet found for user ${userId}`);
     return;
   }
 
-  const currentBalance = Number(wallet.balance || 0);
-  const currentTotalFunded = Number(wallet.total_funded || 0);
-
-  // Credit the wallet
-  const { error: walletError } = await supabase
-    .from('wallets')
-    .update({
-      balance: currentBalance + amountNaira,
-      total_funded: currentTotalFunded + amountNaira,
-    })
-    .eq('id', wallet.id)
-    .eq('user_id', profile.id);
-
-  if (walletError) {
-    console.error('Webhook: wallet update failed:', walletError);
-    throw walletError;
-  }
-
-  // Record the transaction
-  const { error: txError } = await supabase
-    .from('wallet_transactions')
-    .insert({
-      user_id: profile.id,
-      wallet_id: wallet.id,
-      transaction_type: 'credit',
-      amount: amountNaira,
-      reference,
-      description: 'Wallet funded via Paystack (webhook)',
-    });
-
-  if (txError) {
-    console.error('Webhook: transaction insert failed:', txError);
-    throw txError;
-  }
-
-  console.log(
-    `Webhook: credited ₦${amountNaira} to wallet for ${customer.email} (ref: ${reference})`
+  // Atomically credit the wallet via the database function.
+  // The function inserts the transaction record first (protected by a
+  // UNIQUE index on reference), then updates the balance only if the
+  // insert succeeded.  If the reference already exists it returns false
+  // without touching the balance — preventing any double-credit.
+  const { data: credited, error: rpcError } = await supabase.rpc(
+    'credit_wallet_for_payment',
+    {
+      p_user_id: userId,
+      p_wallet_id: wallet.id,
+      p_amount: amountNaira,
+      p_reference: reference,
+      p_description: 'Wallet funded via Paystack (webhook)',
+    }
   );
+
+  if (rpcError) {
+    console.error('Webhook: credit_wallet_for_payment RPC error:', rpcError);
+    throw rpcError;
+  }
+
+  if (credited === false) {
+    console.log(`Webhook: reference ${reference} already processed, skipping`);
+  } else {
+    console.log(
+      `Webhook: credited ₦${amountNaira} to wallet for user ${userId} (ref: ${reference})`
+    );
+  }
 }
 
 async function handleTransferSuccess(data: {
@@ -161,7 +160,6 @@ async function handleTransferSuccess(data: {
 }) {
   const supabase = await createClient();
 
-  // Mark the matching payout request as completed
   const { error } = await supabase
     .from('payout_requests')
     .update({ status: 'completed' })
@@ -181,7 +179,6 @@ async function handleTransferFailed(data: {
 }) {
   const supabase = await createClient();
 
-  // Mark the matching payout request as failed
   const { error } = await supabase
     .from('payout_requests')
     .update({ status: 'failed' })
