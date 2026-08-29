@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Users, ShoppingBag, Wallet, TrendingUp, AlertCircle, CheckCircle, BarChart3 } from 'lucide-react';
+import { Users, ShoppingBag, Wallet, TrendingUp, AlertCircle, CheckCircle, BarChart3, Activity, UserCheck, CalendarDays } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface AdminStats {
@@ -16,6 +16,10 @@ interface AdminStats {
   totalWalletFunds: number;
   pendingPayments: number;
   activeServices: number;
+  // Active user stats
+  activeUsers: number;
+  activeToday: number;
+  activeLast7Days: number;
 }
 
 export default function AdminBentoGrid() {
@@ -31,6 +35,9 @@ export default function AdminBentoGrid() {
     totalWalletFunds: 0,
     pendingPayments: 0,
     activeServices: 0,
+    activeUsers: 0,
+    activeToday: 0,
+    activeLast7Days: 0,
   });
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -72,6 +79,12 @@ export default function AdminBentoGrid() {
         .select('*', { count: 'exact', head: true })
         .eq('is_active', true);
 
+      // Fetch active user stats via secure RPC
+      const { data: activeData } = await supabase.rpc('get_active_users_count', {
+        activity_window_minutes: 30,
+      });
+      const activeRow = Array.isArray(activeData) ? activeData[0] : activeData;
+
       const totalOrders = orders?.length || 0;
       const ordersToday = orders?.filter(o => o.created_at >= todayISO).length || 0;
       const pendingOrders = orders?.filter(o => o.order_status === 'pending' || o.order_status === 'processing').length || 0;
@@ -93,6 +106,9 @@ export default function AdminBentoGrid() {
         totalWalletFunds,
         pendingPayments: 0,
         activeServices: activeServices || 0,
+        activeUsers: Number(activeRow?.active_users ?? 0),
+        activeToday: Number(activeRow?.active_today ?? 0),
+        activeLast7Days: Number(activeRow?.active_last_7_days ?? 0),
       });
     } catch (err: any) {
       console.log('Admin stats error:', err?.message);
@@ -151,6 +167,61 @@ export default function AdminBentoGrid() {
         <div className="mt-2">
           <button className="text-xs text-yellow-400 hover:underline font-medium">Review now →</button>
         </div>
+      </div>
+
+      {/* ── ACTIVE USERS SECTION (3 cards spanning full row) ── */}
+
+      {/* Active Users (last 30 min) */}
+      <div className="card-base card-gradient-bg border-green-500/20 hover:border-green-500/40 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <p className="section-label text-green-400/70">ACTIVE USERS</p>
+          <div className="p-2 rounded-lg bg-green-400/10">
+            <Activity size={16} className="text-green-400 animate-pulse" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+          </span>
+          <span className="text-3xl font-extrabold tabular-nums text-green-400">
+            {loading ? '...' : stats?.activeUsers?.toLocaleString('en-NG')}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground">Active in last 30 minutes</p>
+        <div className="mt-2">
+          <span className="badge-base" style={{ background: 'rgba(74,222,128,0.1)', color: 'rgb(74,222,128)', border: '1px solid rgba(74,222,128,0.2)' }}>
+            of {stats?.totalUsers} total
+          </span>
+        </div>
+      </div>
+
+      {/* Active Today */}
+      <div className="card-base card-gradient-bg hover:border-primary/20 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <p className="section-label">ACTIVE TODAY</p>
+          <div className="p-2 rounded-lg bg-blue-400/10">
+            <UserCheck size={16} className="text-blue-400" />
+          </div>
+        </div>
+        <div className="text-3xl font-extrabold tabular-nums mb-1 text-blue-400">
+          {loading ? '...' : stats?.activeToday?.toLocaleString('en-NG')}
+        </div>
+        <p className="text-xs text-muted-foreground">Seen today (UTC)</p>
+      </div>
+
+      {/* Active Last 7 Days */}
+      <div className="card-base card-gradient-bg hover:border-primary/20 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <p className="section-label">LAST 7 DAYS</p>
+          <div className="p-2 rounded-lg bg-purple-400/10">
+            <CalendarDays size={16} className="text-purple-400" />
+          </div>
+        </div>
+        <div className="text-3xl font-extrabold tabular-nums mb-1 text-purple-400">
+          {loading ? '...' : stats?.activeLast7Days?.toLocaleString('en-NG')}
+        </div>
+        <p className="text-xs text-muted-foreground">Active users, past 7 days</p>
       </div>
 
       {/* Total Orders */}

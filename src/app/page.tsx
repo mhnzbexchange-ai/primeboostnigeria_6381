@@ -5,6 +5,26 @@ import HomepageTestimonials from './components/HomepageTestimonials';
 import HomepageFAQ from './components/HomepageFAQ';
 import HomepageFooter from './components/HomepageFooter';
 import HomepageNav from './components/HomepageNav';
+import HomepageStats from './components/HomepageStats';
+
+// Fetch active users count server-side — no sensitive data exposed to browser
+async function getActiveUsersCount(): Promise<number> {
+  try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      'https://primeboost7331.builtwithrocket.new';
+
+    const res = await fetch(`${baseUrl}/api/active-users`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data?.totalRegistered ?? 0;
+  } catch {
+    return 0;
+  }
+}
 
 function Advertisement() {
   return (
@@ -47,7 +67,9 @@ function Advertisement() {
   );
 }
 
-export default function Homepage() {
+export default async function Homepage() {
+  const activeUsersCount = await getActiveUsersCount();
+
   return (
     <div className="min-h-screen bg-background">
 
@@ -60,6 +82,9 @@ export default function Homepage() {
       <div id="services">
         <HomepageServices />
       </div>
+
+      {/* Stats section with live active users counter */}
+      <HomepageStats activeUsersCount={activeUsersCount} />
 
       <HomepageTestimonials />
 

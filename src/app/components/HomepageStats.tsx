@@ -7,6 +7,7 @@ import {
   Clock,
   Headphones,
 } from 'lucide-react';
+import ActiveUsersCounter from './ActiveUsersCounter';
 import Icon from '@/components/ui/AppIcon';
 
 
@@ -45,7 +46,11 @@ const highlights = [
   },
 ];
 
-export default function HomepageStats() {
+interface HomepageStatsProps {
+  activeUsersCount: number;
+}
+
+export default function HomepageStats({ activeUsersCount }: HomepageStatsProps) {
   return (
     <section className="bg-secondary/30 py-20">
       <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
@@ -71,6 +76,18 @@ export default function HomepageStats() {
           </p>
 
         </div>
+
+        {/* Active Users Live Counter */}
+        {activeUsersCount > 0 && (
+          <div className="mb-10 flex justify-center">
+            <div className="card-base card-gradient-bg inline-flex flex-col items-center gap-3 border-green-500/20 px-10 py-6 text-center hover:border-green-500/40 transition-all duration-300">
+              <ActiveUsersCounter initialCount={activeUsersCount} />
+              <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
+                Registered users who have been active on the platform
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Highlights */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

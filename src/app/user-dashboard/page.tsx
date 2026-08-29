@@ -7,17 +7,20 @@ import DashboardRecentOrders from './components/DashboardRecentOrders';
 import DashboardReferralWidget from './components/DashboardReferralWidget';
 import DashboardWalletHistory from './components/DashboardWalletHistory';
 import { useAuth } from '@/contexts/AuthContext';
+import LastSeenUpdater from '@/app/components/LastSeenUpdater';
 
 export default function UserDashboardPage() {
   const { user, loading } = useAuth();
 
   const firstName =
     user?.user_metadata?.first_name ||
-    user?.user_metadata?.full_name?.split(' ')[0] ||
+    user?.user_metadata?.full_name?.split(' ')?.[0] ||
     'there';
 
   return (
     <AppLayout>
+      {/* Silently updates last_seen for this authenticated user */}
+      <LastSeenUpdater />
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
