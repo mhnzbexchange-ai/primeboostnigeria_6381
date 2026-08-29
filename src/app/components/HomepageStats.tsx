@@ -11,6 +11,7 @@ import ActiveUsersCounter from './ActiveUsersCounter';
 import Icon from '@/components/ui/AppIcon';
 
 
+
 const highlights = [
   {
     id: 'highlight-pricing',
