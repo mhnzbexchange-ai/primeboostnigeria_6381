@@ -24,7 +24,7 @@ function Advertisement() {
               PROMOTE YOUR BUSINESS WITH PRIMEBOOST
             </p>
 
-            <h2 className="text-lg font-bold sm:text-xl">
+            <h2 className="text-2xl font-bold sm:text-3xl">
               Put Your Brand in Front of More People
             </h2>
 
