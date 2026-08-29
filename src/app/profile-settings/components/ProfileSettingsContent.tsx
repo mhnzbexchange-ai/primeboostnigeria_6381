@@ -103,7 +103,7 @@ export default function ProfileSettingsContent() {
   };
 
   const handleUpdatePassword = async () => {
-    if (!form.newPassword || !form.confirmPassword) return;
+    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) return;
     if (form.newPassword !== form.confirmPassword) {
       showAlert('error', 'New passwords do not match.', 'password');
       return;
@@ -119,6 +119,19 @@ export default function ProfileSettingsContent() {
     setPasswordConfirmOpen(false);
     setLoading((l) => ({ ...l, password: true }));
     try {
+      // Re-authenticate with current password first (required by Supabase for password changes)
+      if (form.currentPassword) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: user?.email || '',
+          password: form.currentPassword,
+        });
+        if (signInError) {
+          showAlert('error', 'Current password is incorrect. Please try again.', 'password');
+          setLoading((l) => ({ ...l, password: false }));
+          return;
+        }
+      }
+
       const { error } = await supabase.auth.updateUser({ password: form.newPassword });
       if (error) throw error;
       setPasswordChanged(true);
@@ -248,6 +261,27 @@ export default function ProfileSettingsContent() {
         </div>
 
         <div className="space-y-3">
+          {/* Current Password */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Current Password</label>
+            <div className="relative">
+              <input
+                type={showPasswords.current ? 'text' : 'password'}
+                value={form.currentPassword}
+                onChange={(e) => setForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                className="w-full bg-input border border-border rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                placeholder="Enter current password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasswords((s) => ({ ...s, current: !s.current }))}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPasswords.current ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+          </div>
+
           {/* New Password */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">New Password</label>
@@ -310,7 +344,7 @@ export default function ProfileSettingsContent() {
 
         <button
           onClick={handleUpdatePassword}
-          disabled={loading.password || !form.newPassword || !form.confirmPassword}
+          disabled={loading.password || !form.currentPassword || !form.newPassword || !form.confirmPassword}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading.password ? <Loader2 size={14} className="animate-spin" /> : null}
