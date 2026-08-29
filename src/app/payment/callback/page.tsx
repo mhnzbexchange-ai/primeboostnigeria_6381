@@ -50,7 +50,7 @@ function PaymentCallbackContent() {
         );
 
         setTimeout(() => {
-          router?.push('/dashboard');
+          router?.push('/user-dashboard');
         }, 2500);
       } catch (error) {
         console.error('Payment verification error:', error);
@@ -122,7 +122,7 @@ function PaymentCallbackContent() {
             </p>
 
             <button
-              onClick={() => router?.push('/dashboard')}
+              onClick={() => router?.push('/user-dashboard')}
               className="btn-primary mt-6 px-5 py-3 rounded-xl text-sm font-semibold"
             >
               Back to Dashboard

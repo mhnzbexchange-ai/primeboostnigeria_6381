@@ -98,6 +98,35 @@ export default function AdminPendingPayments() {
     }
   };
 
+  const getSignedProofUrl = async (proofPath: string): Promise<string | null> => {
+    if (!proofPath) return null;
+    try {
+      const { data, error } = await supabase.storage
+        .from('payment-proofs')
+        .createSignedUrl(proofPath, 3600); // 1-hour signed URL
+      if (error || !data?.signedUrl) return null;
+      return data.signedUrl;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleViewProof = async (pay: BankTransferPayment) => {
+    if (!pay.proof_path && !pay.proof_url) {
+      toast.error('No proof file available');
+      return;
+    }
+    // Prefer signed URL from path (private bucket); fall back to stored URL
+    const url = pay.proof_path
+      ? await getSignedProofUrl(pay.proof_path)
+      : pay.proof_url;
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      toast.error('Unable to load proof file');
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-NG', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
@@ -199,17 +228,15 @@ export default function AdminPendingPayments() {
                     {isRejectingThis ? <Loader2 size={12} className="animate-spin" /> : <X size={12} />}
                     Reject
                   </button>
-                  {pay.proof_url && (
-                    <a
-                      href={pay.proof_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {pay.proof_url || pay.proof_path ? (
+                    <button
+                      onClick={() => handleViewProof(pay)}
                       className="p-2 rounded-lg bg-muted/40 hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
                       title="View payment proof"
                     >
                       <ExternalLink size={14} />
-                    </a>
-                  )}
+                    </button>
+                  ) : null}
                 </div>
               </div>
             );

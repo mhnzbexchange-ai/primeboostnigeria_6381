@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Menu, Bell, Search, ChevronDown, LogOut, User, Settings, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface DashboardTopbarProps {
   onMenuClick: () => void;
@@ -22,25 +23,33 @@ const notifications = [
 export default function DashboardTopbar({ onMenuClick, isAdmin = false }: DashboardTopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const displayName = isAdmin
-    ? 'Admin User'
+    ? (user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin')
     : (user?.user_metadata?.full_name ||
        [user?.user_metadata?.first_name, user?.user_metadata?.last_name].filter(Boolean).join(' ') ||
        user?.email?.split('@')[0] ||
        'User');
 
-  const initials = isAdmin
-    ? 'AD'
-    : displayName
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((n: string) => n[0]?.toUpperCase())
-        .join('') || 'U';
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n: string) => n[0]?.toUpperCase())
+    .join('') || 'U';
+
+  const handleSignOut = async () => {
+    setProfileOpen(false);
+    try {
+      await signOut();
+    } catch {
+      router.push('/');
+    }
+  };
 
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 lg:px-6 flex-shrink-0 relative z-30">
@@ -175,13 +184,13 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
 
                 <hr className="border-border my-1" />
 
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors text-red-400"
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors text-red-400"
                 >
                   <LogOut size={14} />
                   Sign Out
-                </Link>
+                </button>
 
               </div>
             </div>

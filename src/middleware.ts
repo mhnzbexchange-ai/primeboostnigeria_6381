@@ -7,12 +7,19 @@ const PROTECTED_PATHS = [
   '/order-form',
 ];
 
+// Admin-only paths — authenticated users without admin role are redirected
+const ADMIN_PATHS = ['/admin-dashboard'];
+
 export async function middleware(
   request: NextRequest
 ) {
   const pathname = request.nextUrl.pathname;
 
   const isProtected = PROTECTED_PATHS.some((path) =>
+    pathname.startsWith(path)
+  );
+
+  const isAdminPath = ADMIN_PATHS.some((path) =>
     pathname.startsWith(path)
   );
 
@@ -115,7 +122,26 @@ export async function middleware(
     }
 
     /*
-     * User is authenticated.
+     * Admin-only route check.
+     * Verify the user has admin role in app_meta_data or user_meta_data.
+     * This is set server-side and cannot be spoofed by the client.
+     */
+    if (isAdminPath) {
+      const isAdmin =
+        user.app_metadata?.role === 'admin' ||
+        user.user_metadata?.role === 'admin';
+
+      if (!isAdmin) {
+        // Non-admin user trying to access admin pages — redirect to their dashboard
+        const dashboardUrl = request.nextUrl.clone();
+        dashboardUrl.pathname = '/user-dashboard';
+        dashboardUrl.searchParams.delete('redirect');
+        return NextResponse.redirect(dashboardUrl);
+      }
+    }
+
+    /*
+     * User is authenticated (and admin-checked if needed).
      * Return the response containing any refreshed
      * Supabase authentication cookies.
      */

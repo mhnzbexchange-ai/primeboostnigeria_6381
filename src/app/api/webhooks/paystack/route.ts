@@ -78,31 +78,19 @@ async function handleChargeSuccess(data: {
     return;
   }
 
-  // Look up the user by email
-  const { data: profile } = await supabase
-    .from('profiles')
+  // Look up the user by email in user_profiles (the correct table)
+  const { data: userProfile } = await supabase
+    .from('user_profiles')
     .select('id')
     .eq('email', customer.email.toLowerCase())
     .maybeSingle();
 
-  if (!profile) {
-    // Try user_profiles table as fallback
-    const { data: userProfile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('email', customer.email.toLowerCase())
-      .maybeSingle();
-
-    if (!userProfile) {
-      console.warn(`Webhook: no profile found for email ${customer.email}`);
-      return;
-    }
-
-    await creditWallet(supabase, userProfile.id, amountNaira, reference);
+  if (!userProfile) {
+    console.warn(`Webhook: no profile found for email ${customer.email}`);
     return;
   }
 
-  await creditWallet(supabase, profile.id, amountNaira, reference);
+  await creditWallet(supabase, userProfile.id, amountNaira, reference);
 }
 
 async function creditWallet(

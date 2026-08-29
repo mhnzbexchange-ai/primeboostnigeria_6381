@@ -262,8 +262,8 @@ export default function OrderFormWizard() {
           order_id: newOrder.id,
           amount: totalPrice,
           reference,
-          proof_url: urlData?.publicUrl || '',
-          proof_path: filePath,
+          proof_url: '',        // Not used — bucket is private; admin uses signed URLs via proof_path
+          proof_path: filePath, // Admin generates signed URL from this path
           status: 'pending',
         });
 
@@ -300,43 +300,36 @@ export default function OrderFormWizard() {
     setLoading(true);
 
     try {
-      const newOrder = await createOrder(data);
+      // Use the secure server-side RPC to atomically create the order
+      // and debit the wallet. This prevents race conditions and ensures
+      // the wallet can never be manipulated from the client side.
+      const { data: result, error: rpcError } = await supabase.rpc(
+        'place_order_debit_wallet',
+        {
+          p_user_id: user.id,
+          p_wallet_id: walletId,
+          p_service_id: data.serviceId,
+          p_platform: data.platform,
+          p_service_name: selectedService.name,
+          p_target_url: data.url,
+          p_quantity: data.quantity,
+          p_amount: totalPrice,
+        }
+      );
 
-      /*
-       * Keep the existing wallet behaviour.
-       *
-       * Note:
-       * For production, wallet debits should ideally be handled by
-       * a secure server-side/database transaction so two simultaneous
-       * orders cannot spend the same balance.
-       */
-      const newBalance = walletBalance - totalPrice;
+      if (rpcError) throw rpcError;
 
-      const { error: walletError } = await supabase
-        .from('wallets')
-        .update({
-          balance: newBalance,
-        })
-        .eq('id', walletId);
+      const rpcResult = result as { success: boolean; error?: string; order_id?: string; new_balance?: number };
 
-      if (walletError) throw walletError;
+      if (!rpcResult?.success) {
+        throw new Error(rpcResult?.error || 'Failed to place order');
+      }
 
-      const { error: transactionError } = await supabase
-        .from('wallet_transactions')
-        .insert({
-          user_id: user.id,
-          wallet_id: walletId,
-          transaction_type: 'debit',
-          source: 'order_payment',
-          amount: totalPrice,
-          description: `Order payment - ${data.platform} ${selectedService.name}`,
-          reference: newOrder.id,
-        });
-
-      if (transactionError) throw transactionError;
+      const newBalance = Number(rpcResult.new_balance ?? 0);
+      const orderId = rpcResult.order_id || '';
 
       setWalletBalance(newBalance);
-      setOrderId(newOrder.id.slice(0, 8).toUpperCase());
+      setOrderId(orderId.slice(0, 8).toUpperCase());
       setOrderPlaced(true);
 
       toast.success('Order placed successfully!');
@@ -360,9 +353,7 @@ export default function OrderFormWizard() {
               to: userEmail,
               name: userName,
               order: {
-                orderId: newOrder.id
-                  .slice(0, 8)
-                  .toUpperCase(),
+                orderId: orderId.slice(0, 8).toUpperCase(),
                 platform: data.platform,
                 serviceName: selectedService.name,
                 quantity: data.quantity,

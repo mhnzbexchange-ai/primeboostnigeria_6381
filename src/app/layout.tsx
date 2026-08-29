@@ -22,6 +22,33 @@ export const metadata: Metadata = {
   title: "PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform",
   description:
     'PrimeBoost Nigeria provides social media promotion services for TikTok, Instagram, YouTube, Telegram, Snapchat, and X. View services, pricing, and place orders online.',
+  metadataBase: new URL('https://primeboostnigeria.com'),
+  alternates: {
+    canonical: 'https://primeboostnigeria.com',
+  },
+  openGraph: {
+    title: "PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform",
+    description:
+      'Grow your social media presence with PrimeBoost Nigeria. Fast, affordable, and reliable promotion services for TikTok, Instagram, Telegram, Snapchat, and X.',
+    url: 'https://primeboostnigeria.com',
+    siteName: 'PrimeBoost Nigeria',
+    locale: 'en_NG',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform",
+    description:
+      'Grow your social media presence with PrimeBoost Nigeria. Fast, affordable, and reliable promotion services.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   icons: {
     icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
   },
