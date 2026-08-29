@@ -54,6 +54,40 @@ export default function DashboardBentoGrid() {
     fetchStats();
   }, [user?.id]);
 
+  // Real-time: re-fetch stats when orders or wallet change
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const ordersChannel = supabase
+      .channel(`bento_orders_rt_${user.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'orders',
+        filter: `user_id=eq.${user.id}`,
+      }, () => {
+        fetchStats();
+      })
+      .subscribe();
+
+    const walletChannel = supabase
+      .channel(`bento_wallet_rt_${user.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'wallets',
+        filter: `user_id=eq.${user.id}`,
+      }, () => {
+        fetchStats();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ordersChannel);
+      supabase.removeChannel(walletChannel);
+    };
+  }, [user?.id]);
+
   const fetchStats = async () => {
     if (!user?.id) return;
 
@@ -328,8 +362,7 @@ export default function DashboardBentoGrid() {
         <div
           className={`card-base card-gradient-bg transition-all ${
             stats.activeOrders > 0
-              ? 'border-yellow-500/30'
-              : ''
+              ? 'border-yellow-500/30' :''
           }`}
         >
           <div className="flex items-center justify-between mb-3">
@@ -441,8 +474,7 @@ export default function DashboardBentoGrid() {
         <div
           className={`card-base card-gradient-bg border-red-500/30 transition-all ${
             stats.failedOrders > 0
-              ? 'bg-red-500/5'
-              : ''
+              ? 'bg-red-500/5' :''
           }`}
         >
           <div className="flex items-center justify-between mb-3">
@@ -581,8 +613,7 @@ export default function DashboardBentoGrid() {
                   }
                   className={`py-2 rounded-lg text-xs font-semibold border transition-all ${
                     fundAmount === String(amt)
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                      ? 'border-primary bg-primary/10 text-primary' :'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   ₦{amt.toLocaleString('en-NG')}
@@ -606,9 +637,7 @@ export default function DashboardBentoGrid() {
                   setSelectedMethod('paystack')
                 }
                 className={`border rounded-lg p-3 flex items-center gap-3 text-left transition-all ${
-                  selectedMethod === 'paystack'
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:border-primary/50'
+                  selectedMethod === 'paystack' ?'border-primary bg-primary/10' :'border-border hover:border-primary/50'
                 }`}
               >
                 <span className="text-xl">
@@ -618,9 +647,7 @@ export default function DashboardBentoGrid() {
                 <div>
                   <p
                     className={`text-sm font-semibold ${
-                      selectedMethod === 'paystack'
-                        ? 'text-primary'
-                        : ''
+                      selectedMethod === 'paystack' ?'text-primary' :''
                     }`}
                   >
                     Paystack
@@ -639,9 +666,7 @@ export default function DashboardBentoGrid() {
                   setSelectedMethod('bank_transfer')
                 }
                 className={`border rounded-lg p-3 flex items-center gap-3 text-left transition-all ${
-                  selectedMethod === 'bank_transfer'
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:border-primary/50'
+                  selectedMethod === 'bank_transfer' ?'border-primary bg-primary/10' :'border-border hover:border-primary/50'
                 }`}
               >
                 <span className="text-xl">
@@ -651,9 +676,7 @@ export default function DashboardBentoGrid() {
                 <div>
                   <p
                     className={`text-sm font-semibold ${
-                      selectedMethod === 'bank_transfer'
-                        ? 'text-primary'
-                        : ''
+                      selectedMethod === 'bank_transfer' ?'text-primary' :''
                     }`}
                   >
                     Bank Transfer
