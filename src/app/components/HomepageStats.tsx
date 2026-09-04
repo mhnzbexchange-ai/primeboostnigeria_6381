@@ -7,7 +7,6 @@ import {
   Clock,
   Headphones,
 } from 'lucide-react';
-import ActiveUsersCounter from './ActiveUsersCounter';
 import Icon from '@/components/ui/AppIcon';
 
 
@@ -48,7 +47,7 @@ const highlights = [
 ];
 
 interface HomepageStatsProps {
-  activeUsersCount: number;
+  activeUsersCount?: number;
 }
 
 export default function HomepageStats({ activeUsersCount }: HomepageStatsProps) {
@@ -78,17 +77,19 @@ export default function HomepageStats({ activeUsersCount }: HomepageStatsProps) 
 
         </div>
 
-        {/* Active Users Live Counter */}
-        {activeUsersCount > 0 && (
-          <div className="mb-10 flex justify-center">
-            <div className="card-base card-gradient-bg inline-flex flex-col items-center gap-3 border-green-500/20 px-10 py-6 text-center hover:border-green-500/40 transition-all duration-300">
-              <ActiveUsersCounter initialCount={activeUsersCount} />
-              <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
-                Registered users who have been active on the platform
-              </p>
+        {/* Active Users Static Counter */}
+        <div className="mb-10 flex justify-center">
+          <div className="card-base card-gradient-bg inline-flex flex-col items-center gap-3 border-green-500/20 px-10 py-6 text-center hover:border-green-500/40 transition-all duration-300">
+            <div className="flex items-center gap-2">
+              <span className="inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-3xl font-bold text-green-400">10,000+</span>
+              <span className="text-sm font-medium text-muted-foreground">Active Users</span>
             </div>
+            <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
+              Registered users who have been active on the platform
+            </p>
           </div>
-        )}
+        </div>
 
         {/* Highlights */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
