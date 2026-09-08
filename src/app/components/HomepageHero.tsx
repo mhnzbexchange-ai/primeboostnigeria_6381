@@ -2,7 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Play } from 'lucide-react';
+import {
+  ArrowRight,
+  Play,
+  ShieldCheck,
+  Zap,
+  TrendingUp,
+  Sparkles,
+} from 'lucide-react';
 
 const platforms = [
   {
@@ -79,146 +86,263 @@ const platforms = [
 
 export default function HomepageHero() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20">
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background pt-24 pb-16 sm:pt-28">
 
-      {/* Background glow */}
-      <div className="absolute inset-0 hero-glow" />
+      {/* Background effects */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 hero-glow" />
 
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08)_0%,transparent_65%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.12)_0%,transparent_55%)]" />
 
-      {/* Grid */}
-      <div
-        className="absolute inset-0 opacity-[0.035]"
-        style={{
-          backgroundImage:
-            'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      />
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
 
-      {/* Main glow */}
-      <div
-        className="absolute left-1/2 top-1/4 h-80 w-80 -translate-x-1/2 rounded-full opacity-10 blur-3xl"
-        style={{ background: 'var(--primary)' }}
-      />
+        <div className="absolute left-1/2 top-20 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
 
-      <div
-        className="absolute bottom-10 right-10 h-64 w-64 rounded-full opacity-5 blur-3xl"
-        style={{ background: 'var(--accent)' }}
-      />
+        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
 
-      <div className="relative z-10 mx-auto w-full max-w-5xl px-5 text-center sm:px-6">
+        <div className="absolute right-0 top-1/3 h-72 w-72 rounded-full bg-accent/5 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8">
 
         {/* Live status */}
-        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-2 backdrop-blur">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
-          <span className="text-xs font-semibold text-muted-foreground">
-            Platform live and accepting orders
-          </span>
+        <div className="mb-7 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-card/70 px-4 py-2 shadow-sm backdrop-blur-xl">
+
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-40" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-400" />
+            </span>
+
+            <span className="text-xs font-semibold text-muted-foreground">
+              Platform live and accepting orders
+            </span>
+
+          </div>
         </div>
 
-        {/* Main heading */}
-        <h1 className="text-hero-xl font-extrabold leading-tight tracking-tight text-foreground">
-          Social Media Promotion
-          <br />
-          <span className="gold-gradient-text">
-            Made Simple With PrimeBoost
-          </span>
-        </h1>
+        {/* Hero content */}
+        <div className="mx-auto max-w-4xl text-center">
 
-        {/* Main message */}
-        <div className="mx-auto mt-7 max-w-2xl">
-          <h2 className="mb-4 text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
-            Promote Your Social Presence With Clear, Simple Services
+          <div className="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+            <Sparkles size={14} aria-hidden="true" />
+            PrimeBoost Nigeria
+          </div>
+
+          <h1 className="text-hero-xl font-extrabold leading-[1.05] tracking-tight text-foreground">
+
+            Grow Your Social Presence
+
+            <br />
+
+            <span className="gold-gradient-text">
+              Build. Promote. Grow.
+            </span>
+
+          </h1>
+
+          <h2 className="mx-auto mt-7 max-w-2xl text-lg font-bold leading-7 text-foreground sm:text-xl">
+            Professional social media promotion made simple.
           </h2>
 
-          <p className="text-sm font-semibold leading-7 text-foreground/80 sm:text-base">
-            PrimeBoost Nigeria provides social media promotion services for
-            creators, businesses, and individuals. Choose a service for
-            TikTok, Instagram, Facebook, YouTube, Telegram, Snapchat, or X, review the
-            available options and pricing, and place your order online.
+          <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-7 text-muted-foreground sm:text-base">
+            PrimeBoost Nigeria gives creators, businesses, brands, and
+            individuals access to social media promotion services across
+            TikTok, Instagram, Facebook, YouTube, Telegram, Snapchat, and X.
           </p>
+
         </div>
 
-        {/* Social platforms */}
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
-          {platforms.map((platform) => (
-            <span
-              key={platform.name}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3.5 py-2 text-xs font-semibold backdrop-blur"
-            >
-              <span className={platform.color}>
-                {platform.icon}
-              </span>
-
-              <span className="font-semibold text-muted-foreground">
-                {platform.name}
-              </span>
-            </span>
-          ))}
-        </div>
-
-        {/* Buttons */}
+        {/* CTA buttons */}
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
 
           <Link
             href="/sign-up-login-screen"
-            className="btn-primary flex min-w-[190px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold glow-gold-sm"
+            className="btn-primary group flex min-w-[200px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-0.5"
           >
             Get Started
-            <ArrowRight size={16} />
+
+            <ArrowRight
+              size={16}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden="true"
+            />
           </Link>
 
           <Link
             href="/service-catalog"
-            className="btn-outline-gold flex min-w-[190px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold"
+            className="btn-outline-gold flex min-w-[200px] items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold"
           >
-            <Play size={14} className="fill-primary" />
-            View Services
+            <Play
+              size={14}
+              className="fill-primary"
+              aria-hidden="true"
+            />
+
+            Explore Services
           </Link>
 
         </div>
 
-        {/* Trust and transparency */}
-        <div className="mx-auto mt-14 grid max-w-4xl gap-4 sm:grid-cols-3">
+        {/* Platform showcase */}
+        <div className="mx-auto mt-12 max-w-5xl">
 
-          <div className="rounded-2xl border border-border bg-card/60 p-5 text-left backdrop-blur">
-            <div className="mb-3 text-xl font-bold">₦</div>
+          <p className="mb-4 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            Supported Platforms
+          </p>
 
-            <h3 className="font-bold">
-              Transparent Pricing
-            </h3>
+          <div className="flex flex-wrap justify-center gap-2.5">
 
-            <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
-              Review the price and available options before placing an order.
-            </p>
+            {platforms.map((platform) => (
+              <div
+                key={platform.name}
+                className="group inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3.5 py-2.5 text-xs font-semibold shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-card"
+              >
+
+                <span className={platform.color}>
+                  {platform.icon}
+                </span>
+
+                <span className="text-muted-foreground transition-colors group-hover:text-foreground">
+                  {platform.name}
+                </span>
+
+              </div>
+            ))}
+
           </div>
 
-          <div className="rounded-2xl border border-border bg-card/60 p-5 text-left backdrop-blur">
-            <div className="mb-3 text-xl">⚡</div>
+        </div>
 
-            <h3 className="font-bold">
-              Simple Ordering
-            </h3>
+        {/* Trust / feature cards */}
+        <div className="mx-auto mt-14 grid max-w-5xl gap-4 md:grid-cols-3">
 
-            <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
-              Select a service, provide the required information, and place
-              your order online.
-            </p>
+          {/* Card 1 */}
+          <div className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-5 text-left shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
+
+            <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/5 blur-2xl" />
+
+            <div className="relative">
+
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-primary/15 bg-primary/10">
+                <ShieldCheck
+                  size={20}
+                  className="text-primary"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <h3 className="text-sm font-bold">
+                Transparent Pricing
+              </h3>
+
+              <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
+                Review service pricing, minimum quantities, and requirements
+                before placing an order.
+              </p>
+
+            </div>
+
           </div>
 
-          <div className="rounded-2xl border border-border bg-card/60 p-5 text-left backdrop-blur">
-            <div className="mb-3 text-xl">💬</div>
+          {/* Card 2 */}
+          <div className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-5 text-left shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
 
-            <h3 className="font-bold">
-              Customer Support
-            </h3>
+            <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/5 blur-2xl" />
 
-            <p className="mt-1 text-sm font-medium leading-6 text-muted-foreground">
-              Our support team is available to help with questions about
-              services and orders.
-            </p>
+            <div className="relative">
+
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-primary/15 bg-primary/10">
+                <Zap
+                  size={20}
+                  className="text-primary"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <h3 className="text-sm font-bold">
+                Simple Ordering
+              </h3>
+
+              <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
+                Select a service, provide your target details, review your
+                order, and submit it online.
+              </p>
+
+            </div>
+
           </div>
+
+          {/* Card 3 */}
+          <div className="group relative overflow-hidden rounded-2xl border border-border bg-card/60 p-5 text-left shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
+
+            <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/5 blur-2xl" />
+
+            <div className="relative">
+
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-primary/15 bg-primary/10">
+                <TrendingUp
+                  size={20}
+                  className="text-primary"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <h3 className="text-sm font-bold">
+                Multiple Platforms
+              </h3>
+
+              <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
+                Access promotion services for the social platforms that matter
+                to your audience and brand.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Bottom trust line */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-medium text-muted-foreground">
+
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck
+              size={13}
+              className="text-primary"
+              aria-hidden="true"
+            />
+            Clear service information
+          </span>
+
+          <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
+
+          <span className="flex items-center gap-1.5">
+            <TrendingUp
+              size={13}
+              className="text-primary"
+              aria-hidden="true"
+            />
+            Multiple promotion options
+          </span>
+
+          <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
+
+          <span className="flex items-center gap-1.5">
+            <Zap
+              size={13}
+              className="text-primary"
+              aria-hidden="true"
+            />
+            Online ordering
+          </span>
 
         </div>
 
