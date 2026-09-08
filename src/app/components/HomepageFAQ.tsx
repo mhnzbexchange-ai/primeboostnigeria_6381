@@ -5,6 +5,8 @@ import {
   ChevronDown,
   ChevronUp,
   MessageCircle,
+  HelpCircle,
+  ShieldCheck,
 } from 'lucide-react';
 
 const faqs = [
@@ -12,7 +14,7 @@ const faqs = [
     id: 'faq-001',
     question: 'What type of services does PrimeBoost provide?',
     answer:
-      'PrimeBoost Nigeria provides social media promotion services for supported platforms including TikTok, Instagram, YouTube, Telegram, Snapchat and X. Available services, pricing, minimum quantities and other requirements are displayed in the service catalog.',
+      'PrimeBoost Nigeria provides social media promotion services for supported platforms including TikTok, Instagram, Facebook, YouTube, Telegram, Snapchat and X. Available services, pricing, minimum quantities and other requirements are displayed in the service catalog.',
   },
   {
     id: 'faq-002',
@@ -67,21 +69,36 @@ export default function HomepageFAQ() {
 
   return (
     <section
-      className="bg-background py-24"
+      className="relative overflow-hidden bg-background py-24 sm:py-28"
       id="faq"
       aria-labelledby="faq-heading"
     >
-      <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
+      {/* Background decoration */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -right-40 bottom-0 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto max-w-screen-xl px-4 lg:px-8">
 
         {/* Heading */}
-        <div className="mb-14 text-center">
-          <p className="section-label mb-3">
-            COMMON QUESTIONS
-          </p>
+        <div className="mx-auto mb-14 max-w-3xl text-center">
+
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
+            <HelpCircle
+              size={14}
+              className="text-primary"
+              aria-hidden="true"
+            />
+
+            <span className="text-xs font-bold tracking-widest text-primary">
+              SUPPORT CENTER
+            </span>
+          </div>
 
           <h2
             id="faq-heading"
-            className="text-hero-md mb-4 font-bold"
+            className="text-hero-md font-bold tracking-tight"
           >
             Frequently Asked{' '}
             <span className="gold-gradient-text">
@@ -89,49 +106,70 @@ export default function HomepageFAQ() {
             </span>
           </h2>
 
-          <p className="mx-auto max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-            Find answers to common questions about PrimeBoost,
-            available services, ordering, payments and customer support.
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+            Everything you need to know about PrimeBoost services, ordering,
+            payments, delivery estimates, and account support.
           </p>
+
         </div>
 
         {/* FAQ list */}
         <div className="mx-auto max-w-3xl space-y-3">
+
           {faqs.map((faq) => {
             const isOpen = openId === faq.id;
 
             return (
               <div
                 key={faq.id}
-                className={`card-base card-gradient-bg transition-all duration-200 ${
+                className={`group relative overflow-hidden rounded-2xl border bg-card/60 p-5 backdrop-blur transition-all duration-300 ${
                   isOpen
-                    ? 'border-primary/40 glow-gold-sm'
-                    : 'hover:border-border/80'
+                    ? 'border-primary/40 shadow-lg'
+                    : 'border-border hover:border-primary/20'
                 }`}
               >
+
+                {/* Active accent */}
+                <div
+                  className={`absolute left-0 top-0 h-full w-0.5 bg-primary transition-opacity ${
+                    isOpen ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
 
                 {/* Question button */}
                 <button
                   type="button"
                   onClick={() => toggleFAQ(faq.id)}
-                  className="flex w-full items-center justify-between gap-4 text-left"
+                  className="flex w-full items-center justify-between gap-5 text-left"
                   aria-expanded={isOpen}
                   aria-controls={`${faq.id}-answer`}
                 >
-                  <span className="text-sm font-semibold leading-snug">
+                  <span
+                    className={`text-sm font-bold leading-relaxed transition-colors ${
+                      isOpen
+                        ? 'text-foreground'
+                        : 'text-foreground/90'
+                    }`}
+                  >
                     {faq.question}
                   </span>
 
-                  <span className="flex-shrink-0">
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all ${
+                      isOpen
+                        ? 'border-primary/30 bg-primary/10'
+                        : 'border-border bg-muted/20'
+                    }`}
+                  >
                     {isOpen ? (
                       <ChevronUp
-                        size={18}
+                        size={16}
                         className="text-primary"
                         aria-hidden="true"
                       />
                     ) : (
                       <ChevronDown
-                        size={18}
+                        size={16}
                         className="text-muted-foreground"
                         aria-hidden="true"
                       />
@@ -143,7 +181,7 @@ export default function HomepageFAQ() {
                 {isOpen && (
                   <div
                     id={`${faq.id}-answer`}
-                    className="mt-3 border-t border-border pt-3 animate-slide-down"
+                    className="mt-4 border-t border-border/70 pt-4 animate-slide-down"
                   >
                     <p className="text-sm leading-7 text-muted-foreground">
                       {faq.answer}
@@ -154,24 +192,57 @@ export default function HomepageFAQ() {
               </div>
             );
           })}
+
+        </div>
+
+        {/* Trust panel */}
+        <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-3xl border border-primary/20 bg-card/70 p-7 shadow-lg backdrop-blur sm:p-8">
+
+          <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left">
+
+            <div className="mb-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 sm:mb-0 sm:mr-5">
+              <ShieldCheck
+                size={22}
+                className="text-primary"
+                aria-hidden="true"
+              />
+            </div>
+
+            <div>
+              <h3 className="mb-2 text-base font-bold">
+                Clear information. Simple decisions.
+              </h3>
+
+              <p className="text-sm leading-7 text-muted-foreground">
+                We provide service information and pricing before you place an
+                order so you can make an informed decision. Service availability
+                and delivery estimates may vary by platform and service.
+              </p>
+            </div>
+
+          </div>
+
         </div>
 
         {/* Support CTA */}
         <div className="mt-12 text-center">
 
-          <p className="mb-4 text-sm text-muted-foreground">
+          <p className="mb-4 text-sm font-medium text-muted-foreground">
             Still have a question?
           </p>
 
           <a
             href="mailto:primeboostnigeria@gmail.com"
-            className="btn-outline-gold inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold"
+            className="btn-outline-gold inline-flex items-center gap-2 rounded-xl px-7 py-3 text-sm font-bold transition-all hover:-translate-y-0.5"
           >
             <MessageCircle
               size={16}
               aria-hidden="true"
             />
+
             Contact Support
+
+            <span aria-hidden="true">→</span>
           </a>
 
         </div>
