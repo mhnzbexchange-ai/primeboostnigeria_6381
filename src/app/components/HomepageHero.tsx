@@ -31,6 +31,15 @@ const platforms = [
     ),
   },
   {
+    name: 'Facebook',
+    color: 'text-blue-400',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+        <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07c0 6.02 4.39 11.02 10.13 11.93v-8.43H7.08v-3.5h3.05V9.41c0-3.05 1.79-4.74 4.56-4.74 1.32 0 2.7.24 2.7.24v2.98h-1.52c-1.5 0-1.97.94-1.97 1.9v2.28h3.35l-.54 3.5H13.9V24C19.61 23.09 24 18.09 24 12.07Z" />
+      </svg>
+    ),
+  },
+  {
     name: 'YouTube',
     color: 'text-red-400',
     icon: (
@@ -126,7 +135,7 @@ export default function HomepageHero() {
           <p className="text-sm font-semibold leading-7 text-foreground/80 sm:text-base">
             PrimeBoost Nigeria provides social media promotion services for
             creators, businesses, and individuals. Choose a service for
-            TikTok, Instagram, YouTube, Telegram, Snapchat, or X, review the
+            TikTok, Instagram, Facebook, YouTube, Telegram, Snapchat, or X, review the
             available options and pricing, and place your order online.
           </p>
         </div>
