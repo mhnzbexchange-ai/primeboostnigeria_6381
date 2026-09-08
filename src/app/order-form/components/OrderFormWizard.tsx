@@ -28,6 +28,8 @@ import {
   PLATFORMS,
   MINIMUM_ORDER_QTY,
   MINIMUM_ORDER_MESSAGE,
+  FACEBOOK_MINIMUM_ORDER_QTY,
+  FACEBOOK_MINIMUM_ORDER_MESSAGE,
   calcTotal,
 } from '@/lib/pricing';
 
@@ -38,11 +40,24 @@ type OrderFormData = {
   quantity: number;
 };
 
+/*
+ * ============================================================
+ * PRIMEBOOST NIGERIA - BANK TRANSFER DETAILS
+ * ============================================================
+ */
 const BUSINESS_BANK_DETAILS = {
-  bankName: 'Kuda bank',
+  bankName: 'Kuda',
   accountNumber: '3004047015',
   accountName: 'CHUKWUDI AWA MBA',
 };
+
+/*
+ * ============================================================
+ * DISCOUNT CODE
+ * ============================================================
+ */
+const DISCOUNT_CODE = 'PRIME10';
+const DISCOUNT_PERCENTAGE = 10;
 
 const steps = [
   { id: 1, label: 'Platform' },
@@ -69,6 +84,9 @@ export default function OrderFormWizard() {
   const [uploadingProof, setUploadingProof] = useState(false);
   const [transferRef, setTransferRef] = useState('');
 
+  const [discountCode, setDiscountCode] = useState('');
+  const [discountApplied, setDiscountApplied] = useState(false);
+
   const { user } = useAuth();
   const supabase = createClient();
 
@@ -80,6 +98,9 @@ export default function OrderFormWizard() {
     formState: { errors },
   } = useForm<OrderFormData>({
     defaultValues: {
+      platform: '',
+      serviceId: '',
+      url: '',
       quantity: MINIMUM_ORDER_QTY,
     },
   });
@@ -87,6 +108,7 @@ export default function OrderFormWizard() {
   const selectedPlatform = watch('platform');
   const selectedServiceId = watch('serviceId');
   const quantity = watch('quantity');
+  const targetUrl = watch('url');
 
   const availableServices = selectedPlatform
     ? SERVICES_BY_PLATFORM[selectedPlatform] || []
@@ -96,14 +118,49 @@ export default function OrderFormWizard() {
     (service) => service.id === selectedServiceId
   );
 
-  const totalPrice = selectedService
-    ? calcTotal(selectedService.pricePerUnit, quantity || 0)
+  /*
+   * ============================================================
+   * KEEP QUANTITY IN SYNC WITH SELECTED SERVICE
+   * ============================================================
+   */
+  useEffect(() => {
+    if (!selectedService) return;
+
+    const currentQuantity = Number(quantity || 0);
+
+    if (currentQuantity < selectedService.minQty) {
+      setValue('quantity', selectedService.minQty);
+    }
+  }, [selectedService?.id, selectedService?.minQty, quantity, setValue]);
+
+  /*
+   * ============================================================
+   * PRICE CALCULATION
+   * ============================================================
+   */
+  const originalTotalPrice = selectedService
+    ? calcTotal(selectedService.pricePerUnit, Number(quantity || 0))
     : 0;
+
+  const discountAmount = discountApplied
+    ? Math.round(originalTotalPrice * (DISCOUNT_PERCENTAGE / 100))
+    : 0;
+
+  const totalPrice = Math.max(
+    0,
+    originalTotalPrice - discountAmount
+  );
 
   const hasSufficientBalance = totalPrice <= walletBalance;
 
+  /*
+   * ============================================================
+   * FETCH WALLET
+   * ============================================================
+   */
   useEffect(() => {
     if (!user?.id) return;
+
     fetchWalletBalance();
   }, [user?.id]);
 
@@ -131,6 +188,50 @@ export default function OrderFormWizard() {
     }
   };
 
+  /*
+   * ============================================================
+   * DISCOUNT CODE
+   * ============================================================
+   */
+  const applyDiscountCode = () => {
+    const code = discountCode.trim().toUpperCase();
+
+    if (!code) {
+      toast.error('Please enter a discount code.');
+      return;
+    }
+
+    if (code === DISCOUNT_CODE) {
+      if (originalTotalPrice <= 0) {
+        toast.error('Please select a service and quantity first.');
+        return;
+      }
+
+      setDiscountApplied(true);
+
+      toast.success(
+        `${DISCOUNT_CODE} applied! You received ${DISCOUNT_PERCENTAGE}% off.`
+      );
+
+      return;
+    }
+
+    setDiscountApplied(false);
+
+    toast.error('Invalid or expired discount code.');
+  };
+
+  const removeDiscount = () => {
+    setDiscountApplied(false);
+    setDiscountCode('');
+    toast.success('Discount removed.');
+  };
+
+  /*
+   * ============================================================
+   * PAYMENT PROOF
+   * ============================================================
+   */
   const handleProofFileChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -175,6 +276,11 @@ export default function OrderFormWizard() {
     setProofPreview(null);
   };
 
+  /*
+   * ============================================================
+   * COPY
+   * ============================================================
+   */
   const copyToClipboard = (text: string, label: string) => {
     if (!navigator.clipboard) {
       toast.error('Copy is not available on this device.');
@@ -187,6 +293,11 @@ export default function OrderFormWizard() {
       .catch(() => toast.error('Unable to copy.'));
   };
 
+  /*
+   * ============================================================
+   * CREATE ORDER
+   * ============================================================
+   */
   const createOrder = async (data: OrderFormData) => {
     if (!user?.id || !selectedService) {
       throw new Error('Please sign in and select a service.');
@@ -198,7 +309,7 @@ export default function OrderFormWizard() {
         user_id: user.id,
         service_id: data.serviceId,
         platform: data.platform,
-        service_name: selectedService.name,
+        service_name: selectedService.service,
         target_url: data.url,
         quantity: data.quantity,
         amount: totalPrice,
@@ -213,6 +324,11 @@ export default function OrderFormWizard() {
     return newOrder;
   };
 
+  /*
+   * ============================================================
+   * BANK TRANSFER
+   * ============================================================
+   */
   const submitBankTransferOrder = async (data: OrderFormData) => {
     if (!user?.id || !selectedService) {
       toast.error('Please sign in to place an order.');
@@ -224,11 +340,17 @@ export default function OrderFormWizard() {
       return;
     }
 
+    if (!BUSINESS_BANK_DETAILS.accountNumber) {
+      toast.error('Bank transfer account details are not configured.');
+      return;
+    }
+
     setLoading(true);
     setUploadingProof(true);
 
     try {
       const fileExt = proofFile.name.split('.').pop() || 'file';
+
       const filePath = `${user.id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
@@ -242,10 +364,6 @@ export default function OrderFormWizard() {
           `Failed to upload proof: ${uploadError.message}`
         );
       }
-
-      const { data: urlData } = supabase.storage
-        .from('payment-proofs')
-        .getPublicUrl(filePath);
 
       setUploadingProof(false);
 
@@ -262,12 +380,14 @@ export default function OrderFormWizard() {
           order_id: newOrder.id,
           amount: totalPrice,
           reference,
-          proof_url: '',        // Not used — bucket is private; admin uses signed URLs via proof_path
-          proof_path: filePath, // Admin generates signed URL from this path
+          proof_url: '',
+          proof_path: filePath,
           status: 'pending',
         });
 
-      if (paymentError) throw paymentError;
+      if (paymentError) {
+        throw paymentError;
+      }
 
       setOrderId(newOrder.id.slice(0, 8).toUpperCase());
       setOrderPlaced(true);
@@ -286,9 +406,16 @@ export default function OrderFormWizard() {
     }
   };
 
+  /*
+   * ============================================================
+   * WALLET ORDER
+   * ============================================================
+   */
   const submitWalletOrder = async (data: OrderFormData) => {
     if (!user?.id || !selectedService || !walletId) {
-      toast.error('Please sign in and make sure your wallet is available.');
+      toast.error(
+        'Please sign in and make sure your wallet is available.'
+      );
       return;
     }
 
@@ -317,30 +444,47 @@ export default function OrderFormWizard() {
         }
       );
 
-      if (rpcError) throw rpcError;
+      const newBalance = walletBalance - totalPrice;
 
       const rpcResult = result as { success: boolean; error?: string; order_id?: string; new_balance?: number };
 
-      if (!rpcResult?.success) {
-        throw new Error(rpcResult?.error || 'Failed to place order');
+      if (walletError) {
+        throw walletError;
       }
 
-      const newBalance = Number(rpcResult.new_balance ?? 0);
-      const orderId = rpcResult.order_id || '';
+      const { error: transactionError } = await supabase
+        .from('wallet_transactions')
+        .insert({
+          user_id: user.id,
+          wallet_id: walletId,
+          transaction_type: 'debit',
+          source: 'order_payment',
+          amount: totalPrice,
+          description: `Order payment - ${data.platform} ${selectedService.service}`,
+          reference: newOrder.id,
+        });
+
+      if (transactionError) {
+        throw transactionError;
+      }
 
       setWalletBalance(newBalance);
-      setOrderId(orderId.slice(0, 8).toUpperCase());
+
+      setOrderId(newOrder.id.slice(0, 8).toUpperCase());
       setOrderPlaced(true);
 
       toast.success('Order placed successfully!');
 
       /*
-       * Email confirmation is non-blocking.
+       * ORDER EMAIL
        */
       try {
         const userEmail = user.email;
+
         const userName =
-          user.user_metadata?.full_name || user.email || '';
+          user.user_metadata?.full_name ||
+          user.email ||
+          '';
 
         if (userEmail) {
           await fetch('/api/send-order-email', {
@@ -353,12 +497,16 @@ export default function OrderFormWizard() {
               to: userEmail,
               name: userName,
               order: {
-                orderId: orderId.slice(0, 8).toUpperCase(),
+                orderId: newOrder.id.slice(0, 8).toUpperCase(),
                 platform: data.platform,
-                serviceName: selectedService.name,
+                serviceName: selectedService.service,
                 quantity: data.quantity,
                 amount: totalPrice,
                 delivery: selectedService.delivery,
+                discountCode: discountApplied
+                  ? DISCOUNT_CODE
+                  : null,
+                discountAmount,
               },
             }),
           });
@@ -376,6 +524,11 @@ export default function OrderFormWizard() {
     }
   };
 
+  /*
+   * ============================================================
+   * FORM SUBMIT
+   * ============================================================
+   */
   const onSubmit = async (data: OrderFormData) => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
@@ -389,6 +542,11 @@ export default function OrderFormWizard() {
     }
   };
 
+  /*
+   * ============================================================
+   * NEXT STEP VALIDATION
+   * ============================================================
+   */
   const handleNext = () => {
     if (currentStep === 1 && !selectedPlatform) {
       toast.error('Please select a platform.');
@@ -400,7 +558,7 @@ export default function OrderFormWizard() {
       return;
     }
 
-    if (currentStep === 2 && !watch('url')) {
+    if (currentStep === 2 && !targetUrl) {
       toast.error('Please enter your profile or post URL.');
       return;
     }
@@ -410,7 +568,9 @@ export default function OrderFormWizard() {
 
       if (currentQuantity < selectedService.minQty) {
         toast.error(
-          `Minimum quantity is ${selectedService.minQty.toLocaleString()}.`
+          selectedPlatform === 'Facebook'
+            ? FACEBOOK_MINIMUM_ORDER_MESSAGE
+            : `Minimum quantity is ${selectedService.minQty.toLocaleString()}.`
         );
         return;
       }
@@ -428,24 +588,41 @@ export default function OrderFormWizard() {
     }
   };
 
+  /*
+   * ============================================================
+   * RESET ORDER
+   * ============================================================
+   */
   const resetOrder = () => {
     setOrderPlaced(false);
     setCurrentStep(1);
+
     setValue('platform', '');
     setValue('serviceId', '');
     setValue('url', '');
     setValue('quantity', MINIMUM_ORDER_QTY);
 
     setPaymentMethod('wallet');
+
     setProofFile(null);
     setProofPreview(null);
     setTransferRef('');
+
+    setDiscountCode('');
+    setDiscountApplied(false);
+
     setOrderId('');
   };
 
+  /*
+   * ============================================================
+   * PLATFORM EMOJI
+   * ============================================================
+   */
   const platformEmoji = (platform: string) => {
     if (platform === 'TikTok') return '🎵';
     if (platform === 'Instagram') return '📸';
+    if (platform === 'Facebook') return '📘';
     if (platform === 'Telegram') return '✈️';
     if (platform === 'Snapchat') return '👻';
     if (platform === 'X (Twitter)') return '𝕏';
@@ -454,6 +631,44 @@ export default function OrderFormWizard() {
     return '📱';
   };
 
+  /*
+   * ============================================================
+   * URL PLACEHOLDER
+   * ============================================================
+   */
+  const getUrlPlaceholder = () => {
+    switch (selectedPlatform) {
+      case 'TikTok':
+        return 'https://tiktok.com/@yourusername';
+
+      case 'Instagram':
+        return 'https://instagram.com/yourusername';
+
+      case 'Facebook':
+        return 'https://facebook.com/yourpage';
+
+      case 'Telegram':
+        return 'https://t.me/yourchannel';
+
+      case 'Snapchat':
+        return 'https://snapchat.com/add/yourusername';
+
+      case 'YouTube':
+        return 'https://youtube.com/@yourchannel';
+
+      case 'X (Twitter)':
+        return 'https://x.com/yourusername';
+
+      default:
+        return 'https://example.com/your-profile';
+    }
+  };
+
+  /*
+   * ============================================================
+   * ORDER COMPLETE SCREEN
+   * ============================================================
+   */
   if (orderPlaced) {
     const isBankTransfer =
       paymentMethod === 'bank_transfer';
@@ -499,9 +714,9 @@ export default function OrderFormWizard() {
               />
 
               <p className="text-xs text-yellow-200/90 leading-relaxed">
-                Bank transfers are manually reviewed. Verification
-                time can vary depending on payment confirmation and
-                business hours.
+                Bank transfers are manually reviewed.
+                Verification time can vary depending on
+                payment confirmation and business hours.
               </p>
             </div>
           )}
@@ -518,7 +733,9 @@ export default function OrderFormWizard() {
             <span className="text-muted-foreground">
               Platform
             </span>
+
             <span className="font-semibold">
+              {platformEmoji(selectedPlatform)}{' '}
               {selectedPlatform}
             </span>
           </div>
@@ -527,8 +744,9 @@ export default function OrderFormWizard() {
             <span className="text-muted-foreground">
               Service
             </span>
+
             <span className="font-semibold text-right">
-              {selectedService?.name}
+              {selectedService?.service}
             </span>
           </div>
 
@@ -536,17 +754,46 @@ export default function OrderFormWizard() {
             <span className="text-muted-foreground">
               Quantity
             </span>
+
             <span className="font-semibold tabular-nums">
-              {quantity?.toLocaleString('en-NG')}
+              {Number(quantity || 0).toLocaleString('en-NG')}
             </span>
           </div>
+
+          {discountApplied && (
+            <>
+              <div className="flex justify-between gap-4 text-sm">
+                <span className="text-muted-foreground">
+                  Original amount
+                </span>
+
+                <span className="font-semibold line-through text-muted-foreground">
+                  ₦
+                  {originalTotalPrice.toLocaleString('en-NG')}
+                </span>
+              </div>
+
+              <div className="flex justify-between gap-4 text-sm">
+                <span className="text-green-400">
+                  {DISCOUNT_CODE} discount
+                </span>
+
+                <span className="font-semibold text-green-400">
+                  -₦
+                  {discountAmount.toLocaleString('en-NG')}
+                </span>
+              </div>
+            </>
+          )}
 
           <div className="flex justify-between gap-4 text-sm border-t border-border pt-3">
             <span className="text-muted-foreground">
               Amount
             </span>
+
             <span className="font-extrabold gold-gradient-text tabular-nums">
-              ₦{totalPrice.toLocaleString('en-NG')}
+              ₦
+              {totalPrice.toLocaleString('en-NG')}
             </span>
           </div>
 
@@ -581,9 +828,10 @@ export default function OrderFormWizard() {
               </p>
 
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Delivery estimates are service estimates and may
-                vary. Results can also vary by platform and service.
-                You can monitor your order from your dashboard.
+                Delivery estimates are service estimates
+                and may vary. Results can also vary by
+                platform and service. You can monitor your
+                order from your dashboard.
               </p>
             </div>
           </div>
@@ -608,9 +856,13 @@ export default function OrderFormWizard() {
     );
   }
 
+  /*
+   * ============================================================
+   * MAIN ORDER FORM
+   * ============================================================
+   */
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -619,8 +871,8 @@ export default function OrderFormWizard() {
             </h1>
 
             <p className="text-sm text-muted-foreground">
-              Choose a service, review the price and submit your
-              order.
+              Choose a service, review the price and submit
+              your order.
             </p>
           </div>
 
@@ -636,12 +888,14 @@ export default function OrderFormWizard() {
           </span>
 
           <span className="font-bold text-primary tabular-nums">
-            ₦{walletBalance.toLocaleString('en-NG')}
+            ₦
+            {walletBalance.toLocaleString('en-NG')}
           </span>
         </div>
       </div>
 
-      {/* Step progress */}
+      {/* STEPS */}
+
       <div className="flex items-center mb-8">
         {steps.map((step, index) => (
           <React.Fragment key={`step-${step.id}`}>
@@ -684,7 +938,10 @@ export default function OrderFormWizard() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* STEP 1 */}
+        {/* ====================================================
+            STEP 1 - PLATFORM
+        ==================================================== */}
+
         {currentStep === 1 && (
           <div className="space-y-5 animate-fade-in-up">
             <div className="card-base card-gradient-bg">
@@ -693,8 +950,8 @@ export default function OrderFormWizard() {
               </h2>
 
               <p className="text-sm text-muted-foreground mb-6">
-                Select the platform associated with the service
-                you want to order.
+                Select the platform associated with the
+                service you want to order.
               </p>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -707,6 +964,19 @@ export default function OrderFormWizard() {
                     onClick={() => {
                       setValue('platform', platform);
                       setValue('serviceId', '');
+                      setDiscountApplied(false);
+
+                      if (platform === 'Facebook') {
+                        setValue(
+                          'quantity',
+                          FACEBOOK_MINIMUM_ORDER_QTY
+                        );
+                      } else {
+                        setValue(
+                          'quantity',
+                          MINIMUM_ORDER_QTY
+                        );
+                      }
                     }}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
                       selectedPlatform === platform
@@ -736,6 +1006,35 @@ export default function OrderFormWizard() {
               </div>
             </div>
 
+            {selectedPlatform === 'Facebook' && (
+              <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
+                <div className="flex items-start gap-2">
+                  <Info
+                    size={15}
+                    className="text-blue-400 flex-shrink-0 mt-0.5"
+                  />
+
+                  <div>
+                    <p className="text-xs font-bold text-blue-400 mb-1">
+                      Facebook services
+                    </p>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Facebook services have a minimum order
+                      quantity of{' '}
+                      <strong className="text-foreground">
+                        1,000
+                      </strong>
+                      . Available services include followers,
+                      Page likes, post likes, Reels likes,
+                      Reels views, video views, comments,
+                      shares and more.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="rounded-xl border border-blue-400/20 bg-blue-400/5 p-4">
               <div className="flex items-start gap-2">
                 <Info
@@ -744,16 +1043,19 @@ export default function OrderFormWizard() {
                 />
 
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Available services, pricing, minimum quantities
-                  and estimated delivery information are shown
-                  before you confirm payment.
+                  Available services, pricing, minimum
+                  quantities and estimated delivery information
+                  are shown before you confirm payment.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* ====================================================
+            STEP 2 - SERVICE & URL
+        ==================================================== */}
+
         {currentStep === 2 && (
           <div className="space-y-5 animate-fade-in-up">
             <div className="card-base card-gradient-bg">
@@ -774,9 +1076,14 @@ export default function OrderFormWizard() {
                   <button
                     key={`svc-select-${service.id}`}
                     type="button"
-                    onClick={() =>
-                      setValue('serviceId', service.id)
-                    }
+                    onClick={() => {
+                      setValue('serviceId', service.id);
+                      setDiscountApplied(false);
+                      setValue(
+                        'quantity',
+                        service.minQty
+                      );
+                    }}
                     className={`w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border-2 transition-all duration-200 text-left ${
                       selectedServiceId === service.id
                         ? 'border-primary bg-primary/10' :'border-border hover:border-primary/40 bg-muted/20'
@@ -803,7 +1110,7 @@ export default function OrderFormWizard() {
 
                       <div className="min-w-0">
                         <p className="font-semibold text-sm truncate">
-                          {service.name}
+                          {service.service}
                         </p>
 
                         <p className="text-xs text-muted-foreground">
@@ -837,8 +1144,8 @@ export default function OrderFormWizard() {
 
               <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
                 Enter the public URL where the selected service
-                should be applied. PrimeBoost does not require your
-                social media password for a standard order.
+                should be applied. PrimeBoost does not require
+                your social media password for a standard order.
               </p>
 
               <div className="relative">
@@ -850,14 +1157,7 @@ export default function OrderFormWizard() {
                 <input
                   type="url"
                   className="input-field pl-9"
-                  placeholder={
-                    selectedPlatform === 'TikTok' ?'https://tiktok.com/@yourusername'
-                      : selectedPlatform === 'Instagram' ?'https://instagram.com/yourusername'
-                      : selectedPlatform === 'Telegram' ?'https://t.me/yourchannel'
-                      : selectedPlatform === 'Snapchat' ?'https://snapchat.com/add/yourusername'
-                      : selectedPlatform === 'YouTube' ?'https://youtube.com/@yourchannel'
-                      : 'https://x.com/yourusername'
-                  }
+                  placeholder={getUrlPlaceholder()}
                   {...register('url', {
                     required: 'URL is required',
                     pattern: {
@@ -883,15 +1183,18 @@ export default function OrderFormWizard() {
 
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Make sure the URL is correct and accessible.
-                  Private accounts or restricted content may affect
-                  whether a service can be completed.
+                  Private accounts or restricted content may
+                  affect whether a service can be completed.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 3 */}
+        {/* ====================================================
+            STEP 3 - QUANTITY
+        ==================================================== */}
+
         {currentStep === 3 && selectedService && (
           <div className="space-y-5 animate-fade-in-up">
             <div className="card-base card-gradient-bg">
@@ -915,7 +1218,8 @@ export default function OrderFormWizard() {
                   Quantity{' '}
                   <span className="text-xs text-muted-foreground font-normal">
                     (minimum{' '}
-                    {selectedService.minQty.toLocaleString()})
+                    {selectedService.minQty.toLocaleString()}
+                    )
                   </span>
                 </label>
 
@@ -929,7 +1233,10 @@ export default function OrderFormWizard() {
                     required: 'Quantity is required',
                     min: {
                       value: selectedService.minQty,
-                      message: MINIMUM_ORDER_MESSAGE,
+                      message:
+                        selectedPlatform === 'Facebook'
+                          ? FACEBOOK_MINIMUM_ORDER_MESSAGE
+                          : MINIMUM_ORDER_MESSAGE,
                     },
                     max: {
                       value: selectedService.maxQty,
@@ -982,6 +1289,8 @@ export default function OrderFormWizard() {
               </div>
             </div>
 
+            {/* PRICE CALCULATOR */}
+
             <div className="card-base card-gradient-bg border-primary/30">
               <h3 className="font-bold text-base mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-primary" />
@@ -995,7 +1304,7 @@ export default function OrderFormWizard() {
                   </span>
 
                   <span className="font-semibold text-right">
-                    {selectedPlatform} {selectedService.name}
+                    {selectedPlatform} {selectedService.service}
                   </span>
                 </div>
 
@@ -1019,7 +1328,9 @@ export default function OrderFormWizard() {
                   </span>
 
                   <span className="font-semibold tabular-nums">
-                    {(quantity || 0).toLocaleString('en-NG')}
+                    {Number(quantity || 0).toLocaleString(
+                      'en-NG'
+                    )}
                   </span>
                 </div>
 
@@ -1029,7 +1340,10 @@ export default function OrderFormWizard() {
                   </span>
 
                   <span className="text-2xl font-extrabold gold-gradient-text tabular-nums">
-                    ₦{totalPrice.toLocaleString('en-NG')}
+                    ₦
+                    {originalTotalPrice.toLocaleString(
+                      'en-NG'
+                    )}
                   </span>
                 </div>
               </div>
@@ -1043,19 +1357,22 @@ export default function OrderFormWizard() {
                 />
 
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  The displayed total is calculated from the
-                  selected service price and quantity. Review the
-                  complete order summary before payment.
+                  Enter your discount code during the payment
+                  step to receive an eligible discount.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 4 */}
+        {/* ====================================================
+            STEP 4 - PAYMENT
+        ==================================================== */}
+
         {currentStep === 4 && selectedService && (
           <div className="space-y-5 animate-fade-in-up">
-            {/* Summary */}
+            {/* ORDER REVIEW */}
+
             <div className="card-base card-gradient-bg">
               <h2 className="font-bold text-lg mb-4">
                 Review Your Order
@@ -1065,20 +1382,22 @@ export default function OrderFormWizard() {
                 {[
                   {
                     label: 'Platform',
-                    value: selectedPlatform,
+                    value: `${platformEmoji(
+                      selectedPlatform
+                    )} ${selectedPlatform}`,
                   },
                   {
                     label: 'Service',
-                    value: selectedService.name,
+                    value: selectedService.service,
                   },
                   {
                     label: 'URL',
-                    value: watch('url'),
+                    value: targetUrl,
                     mono: true,
                   },
                   {
                     label: 'Quantity',
-                    value: (quantity || 0).toLocaleString(
+                    value: Number(quantity || 0).toLocaleString(
                       'en-NG'
                     ),
                   },
@@ -1107,28 +1426,127 @@ export default function OrderFormWizard() {
                 ))}
               </div>
 
-              <div className="flex justify-between items-center p-3 rounded-xl bg-primary/5 border border-primary/20">
+              {/* DISCOUNT */}
+
+              <div className="mt-4 p-4 rounded-xl border border-primary/20 bg-primary/5">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="text-sm font-bold">
+                    Have a discount code? 🎁
+                  </p>
+
+                  {discountApplied && (
+                    <button
+                      type="button"
+                      onClick={removeDiscount}
+                      className="text-xs text-red-400 hover:text-red-300"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={discountCode}
+                    onChange={(event) => {
+                      setDiscountCode(
+                        event.target.value.toUpperCase()
+                      );
+
+                      if (discountApplied) {
+                        setDiscountApplied(false);
+                      }
+                    }}
+                    placeholder="Enter discount code"
+                    className="input-field flex-1 text-sm uppercase"
+                    disabled={discountApplied}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={applyDiscountCode}
+                    disabled={discountApplied}
+                    className="btn-outline-gold px-4 rounded-xl text-sm font-semibold disabled:opacity-60"
+                  >
+                    {discountApplied
+                      ? 'Applied ✓'
+                      : 'Apply'}
+                  </button>
+                </div>
+
+                {discountApplied && (
+                  <div className="mt-3 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Original amount
+                      </span>
+
+                      <span className="line-through text-muted-foreground">
+                        ₦
+                        {originalTotalPrice.toLocaleString(
+                          'en-NG'
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm text-green-400">
+                      <span>
+                        {DISCOUNT_CODE} discount (
+                        {DISCOUNT_PERCENTAGE}%)
+                      </span>
+
+                      <span className="font-semibold">
+                        -₦
+                        {discountAmount.toLocaleString(
+                          'en-NG'
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between pt-2 border-t border-border font-bold">
+                      <span>New total</span>
+
+                      <span className="text-primary">
+                        ₦
+                        {totalPrice.toLocaleString(
+                          'en-NG'
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* FINAL TOTAL */}
+
+              <div className="mt-4 flex justify-between items-center p-3 rounded-xl bg-primary/5 border border-primary/20">
                 <span className="font-bold text-sm">
                   Total Amount
                 </span>
 
                 <span className="text-2xl font-extrabold gold-gradient-text tabular-nums">
-                  ₦{totalPrice.toLocaleString('en-NG')}
+                  ₦
+                  {totalPrice.toLocaleString('en-NG')}
                 </span>
               </div>
             </div>
 
-            {/* Payment */}
+            {/* PAYMENT METHOD */}
+
             <div className="card-base card-gradient-bg">
               <h3 className="font-bold text-base mb-2">
                 Payment Method
               </h3>
 
               <p className="text-xs text-muted-foreground mb-4">
-                Choose how you would like to pay for this order.
+                Choose how you would like to pay for this
+                order.
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-5">
+                {/* WALLET */}
+
                 <button
                   type="button"
                   onClick={() =>
@@ -1139,7 +1557,9 @@ export default function OrderFormWizard() {
                       ? 'border-primary bg-primary/10 glow-gold-sm' :'border-border hover:border-primary/40 bg-muted/20'
                   }`}
                 >
-                  <span className="text-2xl">💰</span>
+                  <span className="text-2xl">
+                    💰
+                  </span>
 
                   <span
                     className={`text-xs font-bold ${
@@ -1152,9 +1572,13 @@ export default function OrderFormWizard() {
 
                   <span className="text-[10px] text-muted-foreground tabular-nums">
                     ₦
-                    {walletBalance.toLocaleString('en-NG')}
+                    {walletBalance.toLocaleString(
+                      'en-NG'
+                    )}
                   </span>
                 </button>
+
+                {/* BANK TRANSFER */}
 
                 <button
                   type="button"
@@ -1165,7 +1589,9 @@ export default function OrderFormWizard() {
                     paymentMethod === 'bank_transfer' ?'border-yellow-400 bg-yellow-400/10' :'border-border hover:border-yellow-400/40 bg-muted/20'
                   }`}
                 >
-                  <span className="text-2xl">🏦</span>
+                  <span className="text-2xl">
+                    🏦
+                  </span>
 
                   <span
                     className={`text-xs font-bold ${
@@ -1181,11 +1607,14 @@ export default function OrderFormWizard() {
                 </button>
               </div>
 
-              {/* Wallet */}
+              {/* WALLET PAYMENT */}
+
               {paymentMethod === 'wallet' && (
                 <div className="space-y-3">
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Balance after payment</span>
+                    <span>
+                      Balance after payment
+                    </span>
 
                     <span
                       className={`font-bold tabular-nums ${
@@ -1214,8 +1643,8 @@ export default function OrderFormWizard() {
                         </p>
 
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          Add funds to your wallet or select Bank
-                          Transfer if available.
+                          Add funds to your wallet or select
+                          Bank Transfer.
                         </p>
                       </div>
                     </div>
@@ -1229,23 +1658,32 @@ export default function OrderFormWizard() {
                       />
 
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        Your wallet will be debited by the displayed
-                        order total when the order is submitted.
+                        Your wallet will be debited by the
+                        displayed order total when the order
+                        is submitted.
                       </p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Bank transfer */}
+              {/* BANK TRANSFER */}
+
               {paymentMethod === 'bank_transfer' && (
                 <div className="space-y-4">
                   <div className="p-4 rounded-xl bg-yellow-400/5 border border-yellow-400/30 space-y-3">
-                    <p className="text-xs font-bold text-yellow-400 uppercase tracking-wide">
-                      Bank Transfer Details
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <Building2
+                        size={16}
+                        className="text-yellow-400"
+                      />
 
-                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-yellow-400 uppercase tracking-wide">
+                        Bank Transfer Details
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
                       <div>
                         <p className="text-[10px] text-muted-foreground">
                           Bank Name
@@ -1257,13 +1695,15 @@ export default function OrderFormWizard() {
                       </div>
 
                       <div className="flex items-center justify-between gap-3">
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-[10px] text-muted-foreground">
                             Account Number
                           </p>
 
-                          <p className="text-lg font-extrabold tabular-nums tracking-widest gold-gradient-text">
-                            {BUSINESS_BANK_DETAILS.accountNumber}
+                          <p className="text-lg font-extrabold tabular-nums tracking-widest gold-gradient-text break-all">
+                            {
+                              BUSINESS_BANK_DETAILS.accountNumber
+                            }
                           </p>
                         </div>
 
@@ -1275,7 +1715,7 @@ export default function OrderFormWizard() {
                               'Account number'
                             )
                           }
-                          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary"
+                          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary flex-shrink-0"
                           title="Copy account number"
                         >
                           <Copy size={14} />
@@ -1323,6 +1763,22 @@ export default function OrderFormWizard() {
                     </div>
                   </div>
 
+                  <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle
+                        size={14}
+                        className="text-yellow-400 flex-shrink-0 mt-0.5"
+                      />
+
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Transfer exactly the amount shown
+                        above. Your order will remain pending
+                        until the payment is manually reviewed
+                        and confirmed.
+                      </p>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-semibold mb-1.5 text-muted-foreground">
                       Transfer Reference / Narration{' '}
@@ -1363,7 +1819,8 @@ export default function OrderFormWizard() {
                           <br />
 
                           <span className="text-[10px]">
-                            JPG, PNG, WEBP or PDF · Maximum 5MB
+                            JPG, PNG, WEBP or PDF · Maximum
+                            5MB
                           </span>
                         </span>
 
@@ -1371,7 +1828,9 @@ export default function OrderFormWizard() {
                           type="file"
                           accept="image/jpeg,image/png,image/webp,application/pdf"
                           className="hidden"
-                          onChange={handleProofFileChange}
+                          onChange={
+                            handleProofFileChange
+                          }
                         />
                       </label>
                     ) : (
@@ -1424,24 +1883,23 @@ export default function OrderFormWizard() {
                   </div>
 
                   <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-400/5 border border-blue-400/20">
-                    <AlertCircle
+                    <ShieldCheck
                       size={14}
                       className="text-blue-400 flex-shrink-0 mt-0.5"
                     />
 
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      Your order will remain{' '}
-                      <strong>pending</strong> until the transfer
-                      is reviewed and confirmed. Do not send
-                      additional payment unless instructed by
-                      PrimeBoost support.
+                      Never send your bank login, PIN or
+                      password. PrimeBoost only needs your
+                      transfer receipt for payment verification.
                     </p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Final transparency notice */}
+            {/* BEFORE SUBMIT */}
+
             <div className="rounded-xl border border-border bg-muted/20 p-4">
               <div className="flex items-start gap-2">
                 <ShieldCheck
@@ -1455,10 +1913,10 @@ export default function OrderFormWizard() {
                   </p>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Please confirm that the platform, service, URL,
-                    quantity and total amount are correct. Service
-                    results and delivery times may vary depending
-                    on the service and platform.
+                    Please confirm that the platform, service,
+                    URL, quantity and total amount are correct.
+                    Service results and delivery times may vary
+                    depending on the service and platform.
                   </p>
                 </div>
               </div>
@@ -1466,7 +1924,10 @@ export default function OrderFormWizard() {
           </div>
         )}
 
-        {/* Navigation */}
+        {/* ====================================================
+            FORM BUTTONS
+        ==================================================== */}
+
         <div className="flex gap-3 mt-6">
           {currentStep > 1 && (
             <button
@@ -1527,10 +1988,12 @@ export default function OrderFormWizard() {
         </div>
       </form>
 
-      {/* Footer information */}
+      {/* FOOTER */}
+
       <div className="mt-8 text-center">
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
           <ShieldCheck size={13} />
+
           <span>
             Review all service information before payment.
           </span>

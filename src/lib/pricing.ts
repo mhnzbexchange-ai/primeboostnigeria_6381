@@ -10,8 +10,13 @@
 
 export const MINIMUM_ORDER_QTY = 500;
 
+export const FACEBOOK_MINIMUM_ORDER_QTY = 1000;
+
 export const MINIMUM_ORDER_MESSAGE =
   'Minimum order is 500 units. Please review the service requirements before placing an order.';
+
+export const FACEBOOK_MINIMUM_ORDER_MESSAGE =
+  'Minimum order for Facebook services is 1,000 units. Please review the service requirements before placing an order.';
 
 export interface ServiceDefinition {
   id: string;
@@ -27,7 +32,8 @@ export interface ServiceDefinition {
     | 'comments'
     | 'shares'
     | 'subscribers'
-    | 'members';
+    | 'members'
+    | 'advertising';
   description: string;
   pricePerUnit: number;
   unit: string;
@@ -154,6 +160,311 @@ export const ALL_SERVICES: ServiceDefinition[] = [
     maxQty: 5000000,
     popular: false,
     quality: 'Standard',
+  },
+
+  // ─── Facebook ─────────────────────────────────────────────────────────────
+  {
+    id: 'svc-fb-followers',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Followers',
+    category: 'followers',
+    description:
+      'Facebook follower promotion service for supported public profiles and creator pages.',
+    pricePerUnit: 10,
+    unit: 'per follower',
+    delivery: 'Usually starts within 2 hours',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 100000,
+    popular: true,
+    quality: 'Premium',
+  },
+
+  {
+    id: 'svc-fb-page-likes',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Page Likes',
+    category: 'likes',
+    description:
+      'Facebook Page likes promotion service for supported public Facebook Pages.',
+    pricePerUnit: 10,
+    unit: 'per like',
+    delivery: 'Usually starts within 2 hours',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 100000,
+    popular: true,
+    quality: 'Premium',
+  },
+
+  {
+    id: 'svc-fb-post-likes',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Post Likes',
+    category: 'likes',
+    description:
+      'Facebook post likes promotion service for supported public posts.',
+    pricePerUnit: 10,
+    unit: 'per like',
+    delivery: 'Usually starts within 30 minutes',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 500000,
+    popular: true,
+    quality: 'High',
+  },
+
+  {
+    id: 'svc-fb-reels-likes',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Reels Likes',
+    category: 'likes',
+    description:
+      'Facebook Reels likes promotion service for supported public Reels.',
+    pricePerUnit: 10,
+    unit: 'per like',
+    delivery: 'Usually starts within 30 minutes',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 500000,
+    popular: true,
+    quality: 'High',
+  },
+
+  {
+    id: 'svc-fb-reels-views',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Reels Views',
+    category: 'views',
+    description:
+      'Facebook Reels views promotion service for supported public Reels.',
+    pricePerUnit: 10,
+    unit: 'per view',
+    delivery: 'Usually starts within 15 minutes',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 10000000,
+    popular: true,
+    quality: 'Standard',
+  },
+
+  {
+    id: 'svc-fb-video-views',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Video Views',
+    category: 'views',
+    description:
+      'Facebook video views promotion service for supported public videos.',
+    pricePerUnit: 10,
+    unit: 'per view',
+    delivery: 'Usually starts within 15 minutes',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 10000000,
+    popular: false,
+    quality: 'Standard',
+  },
+
+  {
+    id: 'svc-fb-comments',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Comments',
+    category: 'comments',
+    description:
+      'Facebook comment promotion service for supported public posts and videos.',
+    pricePerUnit: 15,
+    unit: 'per comment',
+    delivery: 'Usually starts within 1 hour',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 50000,
+    popular: false,
+    quality: 'High',
+  },
+
+  {
+    id: 'svc-fb-shares',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Post Shares',
+    category: 'shares',
+    description:
+      'Facebook post sharing promotion service for supported public content.',
+    pricePerUnit: 15,
+    unit: 'per share',
+    delivery: 'Usually starts within 1 hour',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 100000,
+    popular: false,
+    quality: 'High',
+  },
+
+  {
+    id: 'svc-fb-live-views',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Live Video Views',
+    category: 'views',
+    description:
+      'Facebook Live video views promotion service for supported public broadcasts.',
+    pricePerUnit: 10,
+    unit: 'per view',
+    delivery: 'Usually starts within 15 minutes',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 5000000,
+    popular: false,
+    quality: 'Standard',
+  },
+
+  {
+    id: 'svc-fb-page-promotion',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Page Promotion',
+    category: 'advertising',
+    description:
+      'Facebook Page promotion service designed to increase visibility and reach for eligible public Pages.',
+    pricePerUnit: 10,
+    unit: 'per unit',
+    delivery: 'Usually starts within 1 business day',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 100000,
+    popular: true,
+    quality: 'Premium',
+  },
+
+  {
+    id: 'svc-fb-post-promotion',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Post Promotion',
+    category: 'advertising',
+    description:
+      'Facebook promotional service for increasing the reach of eligible public posts.',
+    pricePerUnit: 10,
+    unit: 'per unit',
+    delivery: 'Usually starts within 1 business day',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 100000,
+    popular: true,
+    quality: 'Premium',
+  },
+
+  {
+    id: 'svc-fb-traffic-campaign',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Website Traffic',
+    category: 'advertising',
+    description:
+      'Facebook advertising service designed to drive targeted traffic to an eligible website or landing page.',
+    pricePerUnit: 10,
+    unit: 'per unit',
+    delivery: 'Usually starts within 1 business day',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 1000000,
+    popular: true,
+    quality: 'Premium',
+  },
+
+  {
+    id: 'svc-fb-engagement-campaign',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Engagement Campaign',
+    category: 'advertising',
+    description:
+      'Facebook advertising service designed to increase engagement with eligible content.',
+    pricePerUnit: 10,
+    unit: 'per unit',
+    delivery: 'Usually starts within 1 business day',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 1000000,
+    popular: false,
+    quality: 'High',
+  },
+
+  {
+    id: 'svc-fb-leads-campaign',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Lead Generation',
+    category: 'advertising',
+    description:
+      'Facebook advertising service designed to help eligible businesses generate leads from targeted audiences.',
+    pricePerUnit: 10,
+    unit: 'per unit',
+    delivery: 'Usually starts within 1 business day',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 1000000,
+    popular: true,
+    quality: 'Premium',
+  },
+
+  {
+    id: 'svc-fb-messages-campaign',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Messages Campaign',
+    category: 'advertising',
+    description:
+      'Facebook advertising service designed to encourage customers to start conversations with an eligible business.',
+    pricePerUnit: 10,
+    unit: 'per unit',
+    delivery: 'Usually starts within 1 business day',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 1000000,
+    popular: false,
+    quality: 'Premium',
+  },
+
+  {
+    id: 'svc-fb-sales-campaign',
+    platform: 'Facebook',
+    emoji: '📘',
+    platformColor: 'text-blue-500',
+    platformBg: 'bg-blue-500/10',
+    service: 'Sales & Conversion',
+    category: 'advertising',
+    description:
+      'Facebook advertising service designed to promote eligible products or services and support conversion goals.',
+    pricePerUnit: 10,
+    unit: 'per unit',
+    delivery: 'Usually starts within 1 business day',
+    minQty: FACEBOOK_MINIMUM_ORDER_QTY,
+    maxQty: 1000000,
+    popular: true,
+    quality: 'Premium',
   },
 
   // ─── X (Twitter) ──────────────────────────────────────────────────────────
@@ -395,6 +706,7 @@ export const SERVICES_BY_PLATFORM: Record<
 export const PLATFORMS = [
   'TikTok',
   'Instagram',
+  'Facebook',
   'X (Twitter)',
   'Snapchat',
   'Telegram',
@@ -418,4 +730,26 @@ export function getServiceById(
   id: string
 ): ServiceDefinition | undefined {
   return ALL_SERVICES.find((s) => s.id === id);
+}
+
+/**
+ * Get the minimum quantity for a service.
+ */
+export function getMinimumQuantity(
+  service: ServiceDefinition
+): number {
+  return service.minQty;
+}
+
+/**
+ * Get the appropriate minimum-order message.
+ */
+export function getMinimumOrderMessage(
+  service: ServiceDefinition
+): string {
+  if (service.platform === 'Facebook') {
+    return FACEBOOK_MINIMUM_ORDER_MESSAGE;
+  }
+
+  return MINIMUM_ORDER_MESSAGE;
 }
