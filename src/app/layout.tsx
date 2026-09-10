@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans } from 'next/font/google';
-import Script from 'next/script';
+
 import '../styles/tailwind.css';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -22,6 +22,33 @@ export const metadata: Metadata = {
   title: "PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform",
   description:
     'PrimeBoost Nigeria provides social media promotion services for TikTok, Instagram, YouTube, Telegram, Snapchat, and X. View services, pricing, and place orders online.',
+  metadataBase: new URL('https://primeboostnigeria.com'),
+  alternates: {
+    canonical: 'https://primeboostnigeria.com',
+  },
+  openGraph: {
+    title: "PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform",
+    description:
+      'Grow your social media presence with PrimeBoost Nigeria. Fast, affordable, and reliable promotion services for TikTok, Instagram, Telegram, Snapchat, and X.',
+    url: 'https://primeboostnigeria.com',
+    siteName: 'PrimeBoost Nigeria',
+    locale: 'en_NG',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "PrimeBoost Nigeria — Nigeria's Trusted Digital Promotion Platform",
+    description:
+      'Grow your social media presence with PrimeBoost Nigeria. Fast, affordable, and reliable promotion services.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   icons: {
     icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
   },
@@ -40,7 +67,9 @@ export default function RootLayout({
           name="google-adsense-account"
           content="ca-pub-8244011032789060"
         />
-      </head>
+
+        <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fprimeboost7331back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20" />
+        <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.3" /></head>
 
       <body className={dmSans.className}>
         <AuthProvider>
@@ -59,17 +88,6 @@ export default function RootLayout({
         />
 
         {/* Rocket */}
-        <Script
-          type="module"
-          src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fprimeboost7331back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20"
-          strategy="afterInteractive"
-        />
-
-        <Script
-          type="module"
-          src="https://static.rocket.new/rocket-shot.js?v=0.0.2"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

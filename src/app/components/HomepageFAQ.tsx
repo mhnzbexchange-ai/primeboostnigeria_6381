@@ -1,13 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  ChevronDown,
-  ChevronUp,
-  MessageCircle,
-  HelpCircle,
-  ShieldCheck,
-} from 'lucide-react';
+import { ChevronDown, MessageCircle, HelpCircle, ShieldCheck } from 'lucide-react';
 
 const faqs = [
   {
@@ -73,7 +67,7 @@ export default function HomepageFAQ() {
       id="faq"
       aria-labelledby="faq-heading"
     >
-      {/* Background decoration */}
+      {/* Background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute -right-40 bottom-0 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
@@ -83,168 +77,101 @@ export default function HomepageFAQ() {
 
         {/* Heading */}
         <div className="mx-auto mb-14 max-w-3xl text-center">
-
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
-            <HelpCircle
-              size={14}
-              className="text-primary"
-              aria-hidden="true"
-            />
-
-            <span className="text-xs font-bold tracking-widest text-primary">
-              SUPPORT CENTER
+            <HelpCircle size={13} className="text-primary" aria-hidden="true" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+              FAQ
             </span>
           </div>
-
-          <h2
-            id="faq-heading"
-            className="text-hero-md font-bold tracking-tight"
-          >
+          <h2 id="faq-heading" className="text-hero-md font-bold tracking-tight">
             Frequently Asked{' '}
-            <span className="gold-gradient-text">
-              Questions
-            </span>
+            <span className="gold-gradient-text">Questions</span>
           </h2>
-
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
             Everything you need to know about PrimeBoost services, ordering,
             payments, delivery estimates, and account support.
           </p>
-
         </div>
 
-        {/* FAQ list */}
-        <div className="mx-auto max-w-3xl space-y-3">
-
-          {faqs.map((faq) => {
-            const isOpen = openId === faq.id;
-
-            return (
-              <div
-                key={faq.id}
-                className={`group relative overflow-hidden rounded-2xl border bg-card/60 p-5 backdrop-blur transition-all duration-300 ${
-                  isOpen
-                    ? 'border-primary/40 shadow-lg'
-                    : 'border-border hover:border-primary/20'
-                }`}
-              >
-
-                {/* Active accent */}
+        {/* Two-column FAQ layout on desktop */}
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-3 lg:grid-cols-2">
+            {faqs.map((faq) => {
+              const isOpen = openId === faq.id;
+              return (
                 <div
-                  className={`absolute left-0 top-0 h-full w-0.5 bg-primary transition-opacity ${
-                    isOpen ? 'opacity-100' : 'opacity-0'
+                  key={faq.id}
+                  className={`group relative overflow-hidden rounded-2xl border bg-card/60 backdrop-blur transition-all duration-300 ${
+                    isOpen
+                      ? 'border-primary/40 shadow-[0_8px_32px_rgba(0,0,0,0.3)]'
+                      : 'border-border/60 hover:border-primary/20'
                   }`}
-                />
-
-                {/* Question button */}
-                <button
-                  type="button"
-                  onClick={() => toggleFAQ(faq.id)}
-                  className="flex w-full items-center justify-between gap-5 text-left"
-                  aria-expanded={isOpen}
-                  aria-controls={`${faq.id}-answer`}
                 >
-                  <span
-                    className={`text-sm font-bold leading-relaxed transition-colors ${
-                      isOpen
-                        ? 'text-foreground'
-                        : 'text-foreground/90'
-                    }`}
-                  >
-                    {faq.question}
-                  </span>
-
-                  <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all ${
-                      isOpen
-                        ? 'border-primary/30 bg-primary/10'
-                        : 'border-border bg-muted/20'
-                    }`}
-                  >
-                    {isOpen ? (
-                      <ChevronUp
-                        size={16}
-                        className="text-primary"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <ChevronDown
-                        size={16}
-                        className="text-muted-foreground"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </span>
-                </button>
-
-                {/* Answer */}
-                {isOpen && (
+                  {/* Active left bar */}
                   <div
-                    id={`${faq.id}-answer`}
-                    className="mt-4 border-t border-border/70 pt-4 animate-slide-down"
+                    className={`absolute left-0 top-0 h-full w-0.5 bg-gradient-to-b from-primary to-accent transition-opacity duration-300 ${
+                      isOpen ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => toggleFAQ(faq.id)}
+                    className="flex w-full items-start justify-between gap-4 p-5 text-left"
+                    aria-expanded={isOpen}
+                    aria-controls={`${faq.id}-answer`}
                   >
-                    <p className="text-sm leading-7 text-muted-foreground">
-                      {faq.answer}
-                    </p>
-                  </div>
-                )}
+                    <span className={`text-[13px] font-bold leading-relaxed transition-colors ${isOpen ? 'text-foreground' : 'text-foreground/85'}`}>
+                      {faq.question}
+                    </span>
+                    <span
+                      className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
+                        isOpen
+                          ? 'border-primary/30 bg-primary/10 rotate-180' :'border-border/60 bg-muted/20'
+                      }`}
+                    >
+                      <ChevronDown
+                        size={14}
+                        className={isOpen ? 'text-primary' : 'text-muted-foreground'}
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </button>
 
-              </div>
-            );
-          })}
-
-        </div>
-
-        {/* Trust panel */}
-        <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-3xl border border-primary/20 bg-card/70 p-7 shadow-lg backdrop-blur sm:p-8">
-
-          <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left">
-
-            <div className="mb-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 sm:mb-0 sm:mr-5">
-              <ShieldCheck
-                size={22}
-                className="text-primary"
-                aria-hidden="true"
-              />
-            </div>
-
-            <div>
-              <h3 className="mb-2 text-base font-bold">
-                Clear information. Simple decisions.
-              </h3>
-
-              <p className="text-sm leading-7 text-muted-foreground">
-                We provide service information and pricing before you place an
-                order so you can make an informed decision. Service availability
-                and delivery estimates may vary by platform and service.
-              </p>
-            </div>
-
+                  {isOpen && (
+                    <div
+                      id={`${faq.id}-answer`}
+                      className="border-t border-border/50 px-5 pb-5 pt-4 animate-slide-down"
+                    >
+                      <p className="text-[13px] leading-7 text-muted-foreground">{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-        </div>
-
-        {/* Support CTA */}
-        <div className="mt-12 text-center">
-
-          <p className="mb-4 text-sm font-medium text-muted-foreground">
-            Still have a question?
-          </p>
-
-          <a
-            href="mailto:primeboostnigeria@gmail.com"
-            className="btn-outline-gold inline-flex items-center gap-2 rounded-xl px-7 py-3 text-sm font-bold transition-all hover:-translate-y-0.5"
-          >
-            <MessageCircle
-              size={16}
-              aria-hidden="true"
-            />
-
-            Contact Support
-
-            <span aria-hidden="true">→</span>
-          </a>
-
+          {/* Support CTA */}
+          <div className="mt-12 overflow-hidden rounded-3xl border border-primary/20 bg-card/70 p-7 shadow-lg backdrop-blur sm:p-8">
+            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                <ShieldCheck size={22} className="text-primary" aria-hidden="true" />
+              </div>
+              <div className="flex-1">
+                <h3 className="mb-1.5 text-[15px] font-bold">Clear information. Simple decisions.</h3>
+                <p className="text-[13px] leading-6 text-muted-foreground">
+                  We provide service information and pricing before you place an order so you can make an informed decision.
+                </p>
+              </div>
+              <a
+                href="mailto:primeboostnigeria@gmail.com"
+                className="btn-outline-gold inline-flex shrink-0 items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all hover:-translate-y-0.5"
+              >
+                <MessageCircle size={15} aria-hidden="true" />
+                Contact Support
+              </a>
+            </div>
+          </div>
         </div>
 
       </div>

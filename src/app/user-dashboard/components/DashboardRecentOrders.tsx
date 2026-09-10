@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ExternalLink, RefreshCw, ArrowRight } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface Order {
   id: string;
@@ -28,12 +29,23 @@ const platformEmoji: Record<string, string> = {
   'X (Twitter)': '𝕏',
 };
 
+const STATUS_MESSAGES: Record<string, string> = {
+  processing: 'is now being processed',
+  active: 'is now active and running',
+  completed: 'has been completed! 🎉',
+  failed: 'has failed. Please contact support.',
+  cancelled: 'has been cancelled.',
+};
+
 export default function DashboardRecentOrders() {
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'failed'>('all');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+  const [updatedIds, setUpdatedIds] = useState<Set<string>>(new Set());
   const { user } = useAuth();
   const supabase = createClient();
+  const prevStatusRef = useRef<Record<string, string>>({});
 
   const fetchOrders = useCallback(async () => {
     if (!user?.id) return;
@@ -51,7 +63,12 @@ export default function DashboardRecentOrders() {
         console.log('Orders fetch error:', error.message);
         return;
       }
-      setOrders(data || []);
+      const fetched = data || [];
+      // Seed the previous status map on initial load
+      const statusMap: Record<string, string> = {};
+      fetched.forEach((o) => { statusMap[o.id] = o.order_status; });
+      prevStatusRef.current = statusMap;
+      setOrders(fetched);
     } catch (err: any) {
       console.log('Orders error:', err?.message);
     } finally {
@@ -63,11 +80,24 @@ export default function DashboardRecentOrders() {
     fetchOrders();
   }, [fetchOrders]);
 
+  // Flash highlight helper
+  const flashRow = (id: string) => {
+    setUpdatedIds((prev) => new Set(prev).add(id));
+    setTimeout(() => {
+      setUpdatedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 2500);
+  };
+
   // Real-time subscription for order status updates
   useEffect(() => {
     if (!user?.id) return;
+
     const channel = supabase
-      .channel('user_orders_realtime')
+      .channel(`user_orders_realtime_${user.id}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -75,16 +105,42 @@ export default function DashboardRecentOrders() {
         filter: `user_id=eq.${user.id}`,
       }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setOrders((prev) => [payload.new as Order, ...prev]);
+          const newOrder = payload.new as Order;
+          setOrders((prev) => [newOrder, ...prev]);
+          prevStatusRef.current[newOrder.id] = newOrder.order_status;
+          flashRow(newOrder.id);
+          toast.info(`New order #${newOrder.id.slice(0, 8).toUpperCase()} placed for ${newOrder.platform}`);
         } else if (payload.eventType === 'UPDATE') {
+          const updated = payload.new as Order;
+          const prevStatus = prevStatusRef.current[updated.id];
+
           setOrders((prev) =>
-            prev.map((o) => o.id === payload.new.id ? { ...o, ...payload.new as Order } : o)
+            prev.map((o) => o.id === updated.id ? { ...o, ...updated } : o)
           );
+          flashRow(updated.id);
+
+          // Only notify if status actually changed
+          if (prevStatus && prevStatus !== updated.order_status) {
+            const msg = STATUS_MESSAGES[updated.order_status];
+            if (msg) {
+              const shortId = `#${updated.id.slice(0, 8).toUpperCase()}`;
+              if (updated.order_status === 'completed') {
+                toast.success(`Order ${shortId} ${msg}`);
+              } else if (updated.order_status === 'failed') {
+                toast.error(`Order ${shortId} ${msg}`);
+              } else {
+                toast.info(`Order ${shortId} ${msg}`);
+              }
+            }
+          }
+          prevStatusRef.current[updated.id] = updated.order_status;
         } else if (payload.eventType === 'DELETE') {
           setOrders((prev) => prev.filter((o) => o.id !== payload.old.id));
         }
       })
-      .subscribe();
+      .subscribe((status) => {
+        setRealtimeConnected(status === 'SUBSCRIBED');
+      });
 
     return () => { supabase.removeChannel(channel); };
   }, [user?.id]);
@@ -107,7 +163,23 @@ export default function DashboardRecentOrders() {
     <div className="card-base card-gradient-bg">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="font-bold text-base">Recent Orders</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-bold text-base">Recent Orders</h2>
+            <span
+              className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium transition-all ${
+                realtimeConnected
+                  ? 'bg-green-500/15 text-green-400' :'bg-muted/40 text-muted-foreground'
+              }`}
+              title={realtimeConnected ? 'Live updates active' : 'Connecting…'}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  realtimeConnected ? 'bg-green-400 animate-pulse' : 'bg-muted-foreground'
+                }`}
+              />
+              {realtimeConnected ? 'Live' : 'Connecting'}
+            </span>
+          </div>
           <p className="text-xs text-muted-foreground mt-0.5">Your latest {orders.length} orders</p>
         </div>
         <Link href="/order-form" className="btn-primary flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold">
@@ -145,7 +217,12 @@ export default function DashboardRecentOrders() {
             </thead>
             <tbody>
               {filtered.map((order) => (
-                <tr key={order.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors group">
+                <tr
+                  key={order.id}
+                  className={`border-b border-border/50 hover:bg-muted/20 transition-colors group ${
+                    updatedIds.has(order.id) ? 'bg-primary/5 border-primary/20' : ''
+                  }`}
+                >
                   <td className="py-3 pr-4">
                     <span className="font-mono text-xs text-primary">#{order.id.slice(0, 8).toUpperCase()}</span>
                   </td>
@@ -168,7 +245,7 @@ export default function DashboardRecentOrders() {
                     <div className="flex items-center gap-2 min-w-[80px]">
                       <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all ${order.order_status === 'failed' ? 'bg-red-400' : order.order_status === 'completed' ? 'bg-green-400' : 'gold-gradient-bg'}`}
+                          className={`h-full rounded-full transition-all duration-700 ${order.order_status === 'failed' ? 'bg-red-400' : order.order_status === 'completed' ? 'bg-green-400' : 'gold-gradient-bg'}`}
                           style={{ width: `${order.progress || 0}%` }}
                         />
                       </div>

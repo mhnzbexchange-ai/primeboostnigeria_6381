@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import AppLogo from './ui/AppLogo';
@@ -26,6 +26,7 @@ import {
   LogOut,
   ArrowDownToLine,
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -39,12 +40,11 @@ const userNavItems = [
   { href: '/user-dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: null },
   { href: '/service-catalog', icon: Package, label: 'Services', badge: null },
   { href: '/order-form', icon: ShoppingCart, label: 'New Order', badge: null },
-  { href: '/user-dashboard', icon: History, label: 'Order History', badge: '3' },
+  { href: '/user-dashboard', icon: History, label: 'Order History', badge: null },
   { href: '/user-dashboard', icon: Wallet, label: 'Wallet', badge: null },
   { href: '/referrals', icon: Gift, label: 'Referrals', badge: null },
   { href: '/payouts', icon: ArrowDownToLine, label: 'Payouts', badge: null },
-  { href: '/user-dashboard', icon: Bell, label: 'Notifications', badge: '5' },
-  { href: '/support-center', icon: HeadphonesIcon, label: 'Support', badge: '1' },
+  { href: '/support-center', icon: HeadphonesIcon, label: 'Support', badge: null },
   { href: '/profile-settings', icon: Settings, label: 'Settings', badge: null },
 ];
 
@@ -52,14 +52,14 @@ const adminNavItems = [
   { href: '/admin-dashboard', icon: LayoutDashboard, label: 'Overview', badge: null },
   { href: '/admin-dashboard', icon: Users, label: 'Users', badge: null },
   { href: '/admin-dashboard', icon: Package, label: 'Services', badge: null },
-  { href: '/admin-dashboard', icon: ShoppingCart, label: 'Orders', badge: '12' },
-  { href: '/admin-dashboard', icon: CreditCard, label: 'Payments', badge: '4' },
+  { href: '/admin-dashboard', icon: ShoppingCart, label: 'Orders', badge: null },
+  { href: '/admin-dashboard', icon: CreditCard, label: 'Payments', badge: null },
   { href: '/admin-dashboard', icon: Wallet, label: 'Wallets', badge: null },
   { href: '/admin-dashboard', icon: BarChart3, label: 'Analytics', badge: null },
   { href: '/admin-dashboard', icon: Tag, label: 'Promo Codes', badge: null },
   { href: '/admin-dashboard', icon: Gift, label: 'Referrals', badge: null },
   { href: '/admin-dashboard', icon: Bell, label: 'Broadcast', badge: null },
-  { href: '/admin-dashboard', icon: HeadphonesIcon, label: 'Support', badge: '3' },
+  { href: '/admin-dashboard', icon: HeadphonesIcon, label: 'Support', badge: null },
   { href: '/admin-dashboard', icon: FileText, label: 'Reports', badge: null },
   { href: '/admin-dashboard', icon: Shield, label: 'Site Settings', badge: null },
 ];
@@ -67,11 +67,58 @@ const adminNavItems = [
 export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClose, isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
   const navItems = isAdmin ? adminNavItems : userNavItems;
+  const { user, signOut } = useAuth();
+
+  const displayName =
+    user?.user_metadata?.full_name ||
+    [user?.user_metadata?.first_name, user?.user_metadata?.last_name].filter(Boolean).join(' ') ||
+    user?.email?.split('@')[0] ||
+    'User';
+
+  const displayEmail = user?.email || '';
+
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n: string) => n[0]?.toUpperCase())
+    .join('') || 'U';
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch {
+      // signOut navigates away regardless
+    }
+  };
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   };
+
+  const UserProfile = ({ showEmail = true }: { showEmail?: boolean }) => (
+    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+      <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-xs font-bold text-primary-foreground flex-shrink-0">
+        {initials}
+      </div>
+      {showEmail && (
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">{displayName}</p>
+          <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
+        </div>
+      )}
+      {showEmail && (
+        <button
+          onClick={handleSignOut}
+          title="Sign out"
+          className="p-1 rounded hover:bg-red-400/10 transition-colors"
+        >
+          <LogOut size={14} className="text-muted-foreground hover:text-red-400" />
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -135,17 +182,7 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
                 >
                   <item.icon size={18} className={active ? 'text-primary' : ''} />
                   {!collapsed && (
-                    <>
-                      <span className="flex-1">{item.label}</span>
-                      {item.badge && (
-                        <span className="badge-base status-pending text-xs px-1.5 py-0.5">
-                          {item.badge}
-                        </span>
-                      )}
-                    </>
-                  )}
-                  {collapsed && item.badge && (
-                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
+                    <span className="flex-1">{item.label}</span>
                   )}
                 </Link>
               );
@@ -156,19 +193,10 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
         {/* User profile */}
         <div className={`border-t border-border p-3 ${collapsed ? 'flex justify-center' : ''}`}>
           {!collapsed ? (
-            <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-xs font-bold text-primary-foreground flex-shrink-0">
-                AC
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">Adaeze Chukwu</p>
-                <p className="text-xs text-muted-foreground truncate">adaeze@gmail.com</p>
-              </div>
-              <LogOut size={14} className="text-muted-foreground flex-shrink-0" />
-            </div>
+            <UserProfile showEmail={true} />
           ) : (
             <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-xs font-bold text-primary-foreground">
-              AC
+              {initials}
             </div>
           )}
         </div>
@@ -211,9 +239,6 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
                 >
                   <item.icon size={18} className={active ? 'text-primary' : ''} />
                   <span className="flex-1">{item.label}</span>
-                  {item.badge && (
-                    <span className="badge-base status-pending text-xs">{item.badge}</span>
-                  )}
                 </Link>
               );
             })}
@@ -221,15 +246,7 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
         </nav>
 
         <div className="border-t border-border p-3">
-          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-            <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-xs font-bold text-primary-foreground">
-              AC
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">Adaeze Chukwu</p>
-              <p className="text-xs text-muted-foreground truncate">adaeze@gmail.com</p>
-            </div>
-          </div>
+          <UserProfile showEmail={true} />
         </div>
       </aside>
     </>

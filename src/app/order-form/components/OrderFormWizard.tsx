@@ -427,16 +427,26 @@ export default function OrderFormWizard() {
     setLoading(true);
 
     try {
-      const newOrder = await createOrder(data);
+      // Use the secure server-side RPC to atomically create the order
+      // and debit the wallet. This prevents race conditions and ensures
+      // the wallet can never be manipulated from the client side.
+      const { data: result, error: rpcError } = await supabase.rpc(
+        'place_order_debit_wallet',
+        {
+          p_user_id: user.id,
+          p_wallet_id: walletId,
+          p_service_id: data.serviceId,
+          p_platform: data.platform,
+          p_service_name: selectedService.name,
+          p_target_url: data.url,
+          p_quantity: data.quantity,
+          p_amount: totalPrice,
+        }
+      );
 
       const newBalance = walletBalance - totalPrice;
 
-      const { error: walletError } = await supabase
-        .from('wallets')
-        .update({
-          balance: newBalance,
-        })
-        .eq('id', walletId);
+      const rpcResult = result as { success: boolean; error?: string; order_id?: string; new_balance?: number };
 
       if (walletError) {
         throw walletError;
@@ -669,8 +679,7 @@ export default function OrderFormWizard() {
           <div
             className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
               isBankTransfer
-                ? 'bg-yellow-400/10 border-2 border-yellow-400'
-                : 'bg-green-400/10 border-2 border-green-400'
+                ? 'bg-yellow-400/10 border-2 border-yellow-400' :'bg-green-400/10 border-2 border-green-400'
             }`}
           >
             {isBankTransfer ? (
@@ -688,8 +697,7 @@ export default function OrderFormWizard() {
 
           <h1 className="text-2xl font-extrabold mb-3">
             {isBankTransfer
-              ? 'Order Submitted'
-              : 'Order Placed'}
+              ? 'Order Submitted' :'Order Placed'}
           </h1>
 
           <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
@@ -797,8 +805,7 @@ export default function OrderFormWizard() {
             <span
               className={`font-semibold text-xs ${
                 isBankTransfer
-                  ? 'text-yellow-400'
-                  : 'text-green-400'
+                  ? 'text-yellow-400' :'text-green-400'
               }`}
             >
               {isBankTransfer
@@ -898,8 +905,7 @@ export default function OrderFormWizard() {
                   currentStep > step.id
                     ? 'gold-gradient-bg text-primary-foreground'
                     : currentStep === step.id
-                    ? 'border-2 border-primary text-primary bg-primary/10'
-                    : 'border-2 border-border text-muted-foreground'
+                    ? 'border-2 border-primary text-primary bg-primary/10' :'border-2 border-border text-muted-foreground'
                 }`}
               >
                 {currentStep > step.id ? (
@@ -912,8 +918,7 @@ export default function OrderFormWizard() {
               <span
                 className={`text-[10px] mt-1.5 font-semibold whitespace-nowrap ${
                   currentStep === step.id
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
+                    ? 'text-primary' :'text-muted-foreground'
                 }`}
               >
                 {step.label}
@@ -924,8 +929,7 @@ export default function OrderFormWizard() {
               <div
                 className={`flex-1 h-0.5 mx-2 mb-4 rounded-full ${
                   currentStep > step.id
-                    ? 'gold-gradient-bg'
-                    : 'bg-border'
+                    ? 'gold-gradient-bg' :'bg-border'
                 }`}
               />
             )}
@@ -976,8 +980,7 @@ export default function OrderFormWizard() {
                     }}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
                       selectedPlatform === platform
-                        ? 'border-primary bg-primary/10 glow-gold-sm'
-                        : 'border-border hover:border-primary/40 bg-muted/20 hover:bg-muted/40'
+                        ? 'border-primary bg-primary/10 glow-gold-sm' :'border-border hover:border-primary/40 bg-muted/20 hover:bg-muted/40'
                     }`}
                   >
                     <span className="text-3xl">
@@ -987,8 +990,7 @@ export default function OrderFormWizard() {
                     <span
                       className={`text-xs font-bold ${
                         selectedPlatform === platform
-                          ? 'text-primary'
-                          : 'text-foreground'
+                          ? 'text-primary' :'text-foreground'
                       }`}
                     >
                       {platform}
@@ -1084,16 +1086,14 @@ export default function OrderFormWizard() {
                     }}
                     className={`w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border-2 transition-all duration-200 text-left ${
                       selectedServiceId === service.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:border-primary/40 bg-muted/20'
+                        ? 'border-primary bg-primary/10' :'border-border hover:border-primary/40 bg-muted/20'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
                         className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           selectedServiceId === service.id
-                            ? 'gold-gradient-bg'
-                            : 'bg-muted/60'
+                            ? 'gold-gradient-bg' :'bg-muted/60'
                         }`}
                       >
                         {selectedServiceId === service.id ? (
@@ -1279,8 +1279,7 @@ export default function OrderFormWizard() {
                         }
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                           quantity === qty
-                            ? 'border-primary bg-primary/10 text-primary'
-                            : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                            ? 'border-primary bg-primary/10 text-primary' :'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
                         }`}
                       >
                         {qty.toLocaleString()}
@@ -1418,8 +1417,7 @@ export default function OrderFormWizard() {
                     <span
                       className={`font-semibold text-right truncate max-w-[220px] ${
                         item.mono
-                          ? 'font-mono text-xs text-primary'
-                          : ''
+                          ? 'font-mono text-xs text-primary' :''
                       }`}
                     >
                       {item.value}
@@ -1556,8 +1554,7 @@ export default function OrderFormWizard() {
                   }
                   className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
                     paymentMethod === 'wallet'
-                      ? 'border-primary bg-primary/10 glow-gold-sm'
-                      : 'border-border hover:border-primary/40 bg-muted/20'
+                      ? 'border-primary bg-primary/10 glow-gold-sm' :'border-border hover:border-primary/40 bg-muted/20'
                   }`}
                 >
                   <span className="text-2xl">
@@ -1567,8 +1564,7 @@ export default function OrderFormWizard() {
                   <span
                     className={`text-xs font-bold ${
                       paymentMethod === 'wallet'
-                        ? 'text-primary'
-                        : 'text-foreground'
+                        ? 'text-primary' :'text-foreground'
                     }`}
                   >
                     Wallet
@@ -1590,9 +1586,7 @@ export default function OrderFormWizard() {
                     setPaymentMethod('bank_transfer')
                   }
                   className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
-                    paymentMethod === 'bank_transfer'
-                      ? 'border-yellow-400 bg-yellow-400/10'
-                      : 'border-border hover:border-yellow-400/40 bg-muted/20'
+                    paymentMethod === 'bank_transfer' ?'border-yellow-400 bg-yellow-400/10' :'border-border hover:border-yellow-400/40 bg-muted/20'
                   }`}
                 >
                   <span className="text-2xl">
@@ -1601,9 +1595,7 @@ export default function OrderFormWizard() {
 
                   <span
                     className={`text-xs font-bold ${
-                      paymentMethod === 'bank_transfer'
-                        ? 'text-yellow-400'
-                        : 'text-foreground'
+                      paymentMethod === 'bank_transfer' ?'text-yellow-400' :'text-foreground'
                     }`}
                   >
                     Bank Transfer
@@ -1627,8 +1619,7 @@ export default function OrderFormWizard() {
                     <span
                       className={`font-bold tabular-nums ${
                         hasSufficientBalance
-                          ? 'text-green-400'
-                          : 'text-red-400'
+                          ? 'text-green-400' :'text-red-400'
                       }`}
                     >
                       ₦
@@ -1979,8 +1970,7 @@ export default function OrderFormWizard() {
                   />
 
                   {uploadingProof
-                    ? 'Uploading proof...'
-                    : 'Submitting...'}
+                    ? 'Uploading proof...' :'Submitting...'}
                 </>
               ) : paymentMethod === 'bank_transfer' ? (
                 <>
