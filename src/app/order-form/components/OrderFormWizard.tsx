@@ -448,8 +448,8 @@ export default function OrderFormWizard() {
 
       const rpcResult = result as { success: boolean; error?: string; order_id?: string; new_balance?: number };
 
-      if (walletError) {
-        throw walletError;
+      if (rpcError) {
+        throw rpcError;
       }
 
       const { error: transactionError } = await supabase
@@ -461,7 +461,7 @@ export default function OrderFormWizard() {
           source: 'order_payment',
           amount: totalPrice,
           description: `Order payment - ${data.platform} ${selectedService.service}`,
-          reference: newOrder.id,
+          reference: rpcResult.order_id,
         });
 
       if (transactionError) {
@@ -470,7 +470,7 @@ export default function OrderFormWizard() {
 
       setWalletBalance(newBalance);
 
-      setOrderId(newOrder.id.slice(0, 8).toUpperCase());
+      setOrderId((rpcResult.order_id ?? '').slice(0, 8).toUpperCase());
       setOrderPlaced(true);
 
       toast.success('Order placed successfully!');
@@ -497,7 +497,7 @@ export default function OrderFormWizard() {
               to: userEmail,
               name: userName,
               order: {
-                orderId: newOrder.id.slice(0, 8).toUpperCase(),
+                orderId: (rpcResult.order_id ?? '').slice(0, 8).toUpperCase(),
                 platform: data.platform,
                 serviceName: selectedService.service,
                 quantity: data.quantity,
@@ -1470,8 +1470,7 @@ export default function OrderFormWizard() {
                     className="btn-outline-gold px-4 rounded-xl text-sm font-semibold disabled:opacity-60"
                   >
                     {discountApplied
-                      ? 'Applied ✓'
-                      : 'Apply'}
+                      ? 'Applied ✓' :'Apply'}
                   </button>
                 </div>
 
