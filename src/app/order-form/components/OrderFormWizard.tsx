@@ -428,47 +428,33 @@ export default function OrderFormWizard() {
 
     try {
       // Use the secure server-side RPC to atomically create the order
-      // and debit the wallet. This prevents race conditions and ensures
-      // the wallet can never be manipulated from the client side.
+      // and debit the wallet. The RPC handles wallet debit + order creation
+      // + wallet_transaction insertion in a single PostgreSQL transaction.
       const { data: result, error: rpcError } = await supabase.rpc(
         'place_order_debit_wallet',
         {
-          p_user_id: user.id,
-          p_wallet_id: walletId,
+          p_user_id:    user.id,
+          p_wallet_id:  walletId,
           p_service_id: data.serviceId,
-          p_platform: data.platform,
-          p_service_name: selectedService.name,
+          p_platform:   data.platform,
           p_target_url: data.url,
-          p_quantity: data.quantity,
-          p_amount: totalPrice,
+          p_quantity:   data.quantity,
+          p_amount:     totalPrice,
         }
       );
-
-      const newBalance = walletBalance - totalPrice;
-
-      const rpcResult = result as { success: boolean; error?: string; order_id?: string; new_balance?: number };
 
       if (rpcError) {
         throw rpcError;
       }
 
-      const { error: transactionError } = await supabase
-        .from('wallet_transactions')
-        .insert({
-          user_id: user.id,
-          wallet_id: walletId,
-          transaction_type: 'debit',
-          source: 'order_payment',
-          amount: totalPrice,
-          description: `Order payment - ${data.platform} ${selectedService.service}`,
-          reference: rpcResult.order_id,
-        });
+      const rpcResult = result as { success: boolean; error?: string; order_id?: string; new_balance?: number };
 
-      if (transactionError) {
-        throw transactionError;
+      if (!rpcResult?.success) {
+        throw new Error(rpcResult?.error || 'Order failed. Please try again.');
       }
 
-      setWalletBalance(newBalance);
+      // Update local wallet balance from the value returned by the RPC
+      setWalletBalance(rpcResult.new_balance ?? (walletBalance - totalPrice));
 
       setOrderId((rpcResult.order_id ?? '').slice(0, 8).toUpperCase());
       setOrderPlaced(true);
