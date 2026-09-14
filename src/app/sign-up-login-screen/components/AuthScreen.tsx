@@ -616,17 +616,13 @@ export default function AuthScreen() {
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">
 
-              {tab === 'login'
-                ? 'Welcome back'
-                : 'Create your account'}
+              {tab === 'login' ?'Welcome back' :'Create your account'}
 
             </h1>
 
             <p className="text-sm text-muted-foreground">
 
-              {tab === 'login'
-                ? 'Sign in to continue to your PrimeBoost dashboard.'
-                : 'Join PrimeBoost and start building your social presence.'}
+              {tab === 'login' ?'Sign in to continue to your PrimeBoost dashboard.' :'Join PrimeBoost and start building your social presence.'}
 
             </p>
 
@@ -658,9 +654,7 @@ export default function AuthScreen() {
                   }`}
                 >
 
-                  {t === 'login'
-                    ? 'Sign In'
-                    : 'Create Account'}
+                  {t === 'login' ?'Sign In' :'Create Account'}
 
                 </button>
 
@@ -868,8 +862,7 @@ export default function AuthScreen() {
                     <input
                       type={
                         showPassword
-                          ? 'text'
-                          : 'password'
+                          ? 'text' :'password'
                       }
                       className="input-field w-full rounded-xl pr-11"
                       placeholder="Enter your password"
@@ -1144,8 +1137,7 @@ export default function AuthScreen() {
                       <input
                         type={
                           showPassword
-                            ? 'text'
-                            : 'password'
+                            ? 'text' :'password'
                         }
                         className="input-field w-full rounded-xl pr-11"
                         placeholder="At least 8 characters"
@@ -1212,8 +1204,7 @@ export default function AuthScreen() {
                       <input
                         type={
                           showConfirmPassword
-                            ? 'text'
-                            : 'password'
+                            ? 'text' :'password'
                         }
                         className="input-field w-full rounded-xl pr-11"
                         placeholder="Repeat your password"
