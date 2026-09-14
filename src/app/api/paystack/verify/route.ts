@@ -80,11 +80,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Make sure the Paystack customer email matches the logged-in account (case-insensitive)
-    if (
-      payment.customer?.email &&
-      user.email &&
-      payment.customer.email.toLowerCase().trim() !== user.email.toLowerCase().trim()
-    ) {
+    const paystackEmail = payment.customer?.email?.toLowerCase().trim() ?? '';
+    const userEmail = user.email?.toLowerCase().trim() ?? '';
+
+    if (paystackEmail && userEmail && paystackEmail !== userEmail) {
       console.error(
         `Verify: email mismatch — Paystack: ${payment.customer.email}, user: ${user.email}`
       );
@@ -94,59 +93,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find the customer's wallet
-    const { data: wallet, error: walletError } = await supabase
-      .from('wallets')
-      .select('id, balance, total_funded')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (walletError) {
-      console.error('Wallet lookup error:', walletError);
-      return NextResponse.json(
-        { success: false, error: 'Unable to access your wallet' },
-        { status: 500 }
-      );
-    }
-
-    if (!wallet) {
-      return NextResponse.json(
-        { success: false, error: 'Wallet not found for this account' },
-        { status: 404 }
-      );
-    }
-
-    // Atomically credit the wallet via the database function.
-    // The function inserts the transaction record first (protected by a
-    // UNIQUE index on reference), then updates the balance only if the
-    // insert succeeded. If the reference already exists it returns false
-    // without touching the balance — preventing any double-credit.
-    const { data: credited, error: rpcError } = await supabase.rpc(
-      'credit_wallet_for_payment',
+    // Use the confirmed-working reconcile_paystack_payment function.
+    // It handles: user lookup by email, wallet lookup, idempotent credit,
+    // and duplicate-reference protection — all atomically.
+    const { data: result, error: rpcError } = await supabase.rpc(
+      'reconcile_paystack_payment',
       {
-        p_user_id: user.id,
-        p_wallet_id: wallet.id,
-        p_amount: amountNaira,
         p_reference: reference,
-        p_description: 'Wallet funded via Paystack',
+        p_email: payment.customer?.email ?? user.email,
+        p_amount_naira: amountNaira,
       }
     );
 
     if (rpcError) {
-      console.error('credit_wallet_for_payment RPC error:', rpcError);
-      // Log full error details to help diagnose
+      console.error('reconcile_paystack_payment RPC error:', rpcError);
       console.error('RPC error details:', JSON.stringify(rpcError));
       return NextResponse.json(
         {
           success: false,
-          error: 'Payment verified by Paystack, but wallet update failed. Please contact support with reference: ' + reference,
+          error:
+            'Payment verified by Paystack, but wallet update failed. Please contact support with reference: ' +
+            reference,
         },
         { status: 500 }
       );
     }
 
-    // credited === false means the reference was already processed
-    const alreadyProcessed = credited === false;
+    if (!result?.success) {
+      console.error('reconcile_paystack_payment returned failure:', result);
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            result?.error ||
+            'Payment verified but wallet could not be credited. Please contact support with reference: ' +
+              reference,
+        },
+        { status: 500 }
+      );
+    }
+
+    const alreadyProcessed = result?.already_credited === true;
 
     return NextResponse.json({
       success: true,
