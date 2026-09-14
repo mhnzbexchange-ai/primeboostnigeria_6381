@@ -68,8 +68,6 @@ async function handleChargeSuccess(data: {
 
   if (status !== 'success') return;
 
-  const supabase = await createClient();
-
   // Paystack sends amount in kobo
   const amountNaira = Number(amount) / 100;
 
@@ -78,75 +76,41 @@ async function handleChargeSuccess(data: {
     return;
   }
 
-  // Look up the user by email — case-insensitive to handle any casing differences
-  const { data: userProfile, error: profileError } = await supabase
-    .from('user_profiles')
-    .select('id')
-    .ilike('email', customer.email.trim())
-    .maybeSingle();
+  const supabase = await createClient();
 
-  if (profileError) {
-    console.error(`Webhook: profile lookup error for ${customer.email}:`, profileError);
-    return;
-  }
-
-  if (!userProfile) {
-    console.warn(`Webhook: no profile found for email ${customer.email} — cannot credit wallet`);
-    return;
-  }
-
-  await creditWallet(supabase, userProfile.id, amountNaira, reference);
-}
-
-async function creditWallet(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-  amountNaira: number,
-  reference: string
-) {
-  // Find the user's wallet
-  const { data: wallet, error: walletError } = await supabase
-    .from('wallets')
-    .select('id')
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (walletError) {
-    console.error(`Webhook: wallet lookup error for user ${userId}:`, walletError);
-    return;
-  }
-
-  if (!wallet) {
-    console.warn(`Webhook: no wallet found for user ${userId}`);
-    return;
-  }
-
-  // Atomically credit the wallet via the database function.
-  // The function inserts the transaction record first (protected by a
-  // UNIQUE index on reference), then updates the balance only if the
-  // insert succeeded. If the reference already exists it returns false
-  // without touching the balance — preventing any double-credit.
-  const { data: credited, error: rpcError } = await supabase.rpc(
-    'credit_wallet_for_payment',
+  // Use the confirmed-working reconcile_paystack_payment function.
+  // It handles: user lookup by email, wallet lookup, idempotent credit,
+  // and duplicate-reference protection — all atomically.
+  const { data: result, error: rpcError } = await supabase.rpc(
+    'reconcile_paystack_payment',
     {
-      p_user_id: userId,
-      p_wallet_id: wallet.id,
-      p_amount: amountNaira,
       p_reference: reference,
-      p_description: 'Wallet funded via Paystack',
+      p_email: customer.email.trim(),
+      p_amount_naira: amountNaira,
     }
   );
 
   if (rpcError) {
-    console.error('Webhook: credit_wallet_for_payment RPC error:', rpcError);
+    console.error(
+      `Webhook: reconcile_paystack_payment RPC error for ref ${reference}:`,
+      rpcError
+    );
     throw rpcError;
   }
 
-  if (credited === false) {
+  if (!result?.success) {
+    console.error(
+      `Webhook: reconcile_paystack_payment returned failure for ref ${reference}:`,
+      result
+    );
+    throw new Error(result?.error || 'reconcile_paystack_payment failed');
+  }
+
+  if (result?.already_credited) {
     console.log(`Webhook: reference ${reference} already processed, skipping`);
   } else {
     console.log(
-      `Webhook: credited ₦${amountNaira} to wallet for user ${userId} (ref: ${reference})`
+      `Webhook: credited ₦${amountNaira} to wallet for ${customer.email} (ref: ${reference})`
     );
   }
 }
