@@ -78,15 +78,20 @@ async function handleChargeSuccess(data: {
     return;
   }
 
-  // Look up the user by email in user_profiles (the correct table)
-  const { data: userProfile } = await supabase
+  // Look up the user by email — case-insensitive to handle any casing differences
+  const { data: userProfile, error: profileError } = await supabase
     .from('user_profiles')
     .select('id')
-    .eq('email', customer.email.toLowerCase())
+    .ilike('email', customer.email.trim())
     .maybeSingle();
 
+  if (profileError) {
+    console.error(`Webhook: profile lookup error for ${customer.email}:`, profileError);
+    return;
+  }
+
   if (!userProfile) {
-    console.warn(`Webhook: no profile found for email ${customer.email}`);
+    console.warn(`Webhook: no profile found for email ${customer.email} — cannot credit wallet`);
     return;
   }
 
@@ -100,11 +105,16 @@ async function creditWallet(
   reference: string
 ) {
   // Find the user's wallet
-  const { data: wallet } = await supabase
+  const { data: wallet, error: walletError } = await supabase
     .from('wallets')
     .select('id')
     .eq('user_id', userId)
     .maybeSingle();
+
+  if (walletError) {
+    console.error(`Webhook: wallet lookup error for user ${userId}:`, walletError);
+    return;
+  }
 
   if (!wallet) {
     console.warn(`Webhook: no wallet found for user ${userId}`);
@@ -114,7 +124,7 @@ async function creditWallet(
   // Atomically credit the wallet via the database function.
   // The function inserts the transaction record first (protected by a
   // UNIQUE index on reference), then updates the balance only if the
-  // insert succeeded.  If the reference already exists it returns false
+  // insert succeeded. If the reference already exists it returns false
   // without touching the balance — preventing any double-credit.
   const { data: credited, error: rpcError } = await supabase.rpc(
     'credit_wallet_for_payment',
@@ -123,7 +133,7 @@ async function creditWallet(
       p_wallet_id: wallet.id,
       p_amount: amountNaira,
       p_reference: reference,
-      p_description: 'Wallet funded via Paystack (webhook)',
+      p_description: 'Wallet funded via Paystack',
     }
   );
 
