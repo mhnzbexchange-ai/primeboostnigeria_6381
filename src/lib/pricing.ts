@@ -26,14 +26,7 @@ export interface ServiceDefinition {
   platformBg: string;
   service: string;
   category:
-    | 'followers'
-    | 'likes'
-    | 'views'
-    | 'comments'
-    | 'shares'
-    | 'subscribers'
-    | 'members'
-    | 'advertising';
+    | 'followers' |'likes' |'views' |'comments' |'shares' |'subscribers' |'members' |'advertising';
   description: string;
   pricePerUnit: number;
   unit: string;

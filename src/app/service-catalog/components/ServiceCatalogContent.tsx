@@ -31,10 +31,7 @@ const categories = [
 ];
 
 type SortOption =
-  | 'price-asc'
-  | 'price-desc'
-  | 'popular'
-  | 'delivery';
+  | 'price-asc' |'price-desc' |'popular' |'delivery';
 
 export default function ServiceCatalogContent() {
   const [selectedPlatform, setSelectedPlatform] = useState('All');
@@ -327,8 +324,7 @@ export default function ServiceCatalogContent() {
               }
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 selectedCategory === category
-                  ? 'bg-primary/20 text-primary border border-primary/40'
-                  : 'bg-muted/40 text-muted-foreground hover:text-foreground border border-transparent'
+                  ? 'bg-primary/20 text-primary border border-primary/40' :'bg-muted/40 text-muted-foreground hover:text-foreground border border-transparent'
               }`}
             >
               {category}
@@ -415,11 +411,8 @@ export default function ServiceCatalogContent() {
                 <div className="mb-3">
                   <span
                     className={`badge-base text-[10px] ${
-                      service.quality === 'Premium'
-                        ? 'status-completed'
-                        : service.quality === 'High'
-                        ? 'status-processing'
-                        : 'status-cancelled'
+                      service.quality === 'Premium' ?'status-completed'
+                        : service.quality === 'High' ?'status-processing' :'status-cancelled'
                     }`}
                   >
                     {service.quality} Service

@@ -300,8 +300,7 @@ export default function AdminPendingPayments() {
         month: 'short',
         year: 'numeric',
       }) +
-      ' · ' +
-      date.toLocaleTimeString('en-NG', {
+      '· ' + date.toLocaleTimeString('en-NG', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
@@ -346,8 +345,7 @@ export default function AdminPendingPayments() {
               size={14}
               className={
                 loading
-                  ? 'animate-spin'
-                  : ''
+                  ? 'animate-spin' :''
               }
             />
           </button>
