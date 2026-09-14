@@ -72,19 +72,22 @@ export async function POST(request: NextRequest) {
     // Paystack amount is returned in kobo
     const amountNaira = Number(payment.amount) / 100;
 
-    if (!Number.isFinite(amountNaira) || amountNaira < 500) {
+    if (!Number.isFinite(amountNaira) || amountNaira < 1) {
       return NextResponse.json(
         { success: false, error: 'Invalid payment amount' },
         { status: 400 }
       );
     }
 
-    // Make sure the Paystack customer matches the logged-in account
+    // Make sure the Paystack customer email matches the logged-in account (case-insensitive)
     if (
       payment.customer?.email &&
       user.email &&
-      payment.customer.email.toLowerCase() !== user.email.toLowerCase()
+      payment.customer.email.toLowerCase().trim() !== user.email.toLowerCase().trim()
     ) {
+      console.error(
+        `Verify: email mismatch — Paystack: ${payment.customer.email}, user: ${user.email}`
+      );
       return NextResponse.json(
         { success: false, error: 'This payment does not belong to your account' },
         { status: 403 }
@@ -116,7 +119,7 @@ export async function POST(request: NextRequest) {
     // Atomically credit the wallet via the database function.
     // The function inserts the transaction record first (protected by a
     // UNIQUE index on reference), then updates the balance only if the
-    // insert succeeded.  If the reference already exists it returns false
+    // insert succeeded. If the reference already exists it returns false
     // without touching the balance — preventing any double-credit.
     const { data: credited, error: rpcError } = await supabase.rpc(
       'credit_wallet_for_payment',
@@ -131,8 +134,13 @@ export async function POST(request: NextRequest) {
 
     if (rpcError) {
       console.error('credit_wallet_for_payment RPC error:', rpcError);
+      // Log full error details to help diagnose
+      console.error('RPC error details:', JSON.stringify(rpcError));
       return NextResponse.json(
-        { success: false, error: 'Payment verified, but wallet update failed' },
+        {
+          success: false,
+          error: 'Payment verified by Paystack, but wallet update failed. Please contact support with reference: ' + reference,
+        },
         { status: 500 }
       );
     }
