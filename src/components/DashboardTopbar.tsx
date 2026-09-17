@@ -156,7 +156,8 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
               <div className="p-2 space-y-0.5">
 
                 <Link
-                  href="/user-dashboard"
+                  href="/profile-settings"
+                  onClick={() => setProfileOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors"
                 >
                   <User size={14} className="text-muted-foreground" />
@@ -164,7 +165,8 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
                 </Link>
 
                 <Link
-                  href="/user-dashboard"
+                  href="/profile-settings"
+                  onClick={() => setProfileOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted/50 transition-colors"
                 >
                   <Settings size={14} className="text-muted-foreground" />
