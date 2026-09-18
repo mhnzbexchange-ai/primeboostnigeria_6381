@@ -126,14 +126,14 @@ export default function HomepageFooter() {
               </a>
 
               <a
-                href="mailto:primeboostnigeria@gmail.com"
+                href="mailto:support@primeboostnigeria.com"
                 className="flex items-center gap-3 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
                 aria-label="Email PrimeBoost Nigeria support"
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                   <Mail size={14} className="text-primary" aria-hidden="true" />
                 </span>
-                primeboostnigeria@gmail.com
+                support@primeboostnigeria.com
               </a>
 
               <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
@@ -142,6 +142,20 @@ export default function HomepageFooter() {
                 </span>
                 Customer support available online
               </div>
+            </div>
+
+            {/* Trust / About block */}
+            <div className="mt-7 rounded-xl border border-border/60 bg-background/40 p-4 space-y-2">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">About PrimeBoost Nigeria</p>
+              <p className="text-[12px] leading-6 text-muted-foreground">
+                <span className="font-semibold text-foreground">PrimeBoost Nigeria</span> is a registered Nigerian business providing social media promotion services to individuals and brands across Nigeria and beyond.
+              </p>
+              <ul className="space-y-1 text-[12px] text-muted-foreground">
+                <li>📍 <span className="font-medium text-foreground">Lagos, Nigeria</span></li>
+                <li>🏢 CAC Registered Business</li>
+                <li>✉️ <a href="mailto:support@primeboostnigeria.com" className="text-primary hover:underline">support@primeboostnigeria.com</a></li>
+                <li>💬 WhatsApp: <a href="https://wa.me/2347082653790" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">+234 708 265 3790</a></li>
+              </ul>
             </div>
           </div>
 
@@ -194,7 +208,7 @@ export default function HomepageFooter() {
             <Link href="/privacy-policy" className="text-[12px] text-muted-foreground transition-colors hover:text-primary">Privacy</Link>
             <Link href="/terms-of-service" className="text-[12px] text-muted-foreground transition-colors hover:text-primary">Terms</Link>
             <Link href="/refund-policy" className="text-[12px] text-muted-foreground transition-colors hover:text-primary">Refunds</Link>
-            <a href="mailto:primeboostnigeria@gmail.com" className="text-[12px] text-muted-foreground transition-colors hover:text-primary">Contact</a>
+            <a href="mailto:support@primeboostnigeria.com" className="text-[12px] text-muted-foreground transition-colors hover:text-primary">Contact</a>
             <span className="flex items-center gap-2 text-[12px] font-medium text-muted-foreground">
               <span className="h-2 w-2 rounded-full bg-green-400" aria-hidden="true" />
               Online

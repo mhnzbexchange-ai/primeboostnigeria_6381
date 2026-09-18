@@ -402,7 +402,7 @@ export default function SupportCenterContent() {
           {
             icon: Mail,
             title: 'Email Support',
-            detail: 'primeboostnigeria@gmail.com',
+            detail: 'support@primeboostnigeria.com',
             sub: 'Response within 2 hours',
             color: 'text-primary',
             bg: 'bg-primary/10',

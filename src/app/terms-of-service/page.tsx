@@ -357,10 +357,10 @@ export default function TermsOfServicePage() {
               <p className="mt-2">
                 Email:{' '}
                 <a
-                  href="mailto:primeboostnigeria@gmail.com"
+                  href="mailto:support@primeboostnigeria.com"
                   className="text-primary hover:underline"
                 >
-                  primeboostnigeria@gmail.com
+                  support@primeboostnigeria.com
                 </a>
               </p>
 

@@ -50,7 +50,7 @@ const faqs = [
     id: 'faq-008',
     question: 'How can I contact PrimeBoost support?',
     answer:
-      'You can use the support options provided throughout the website. You can also email primeboostnigeria@gmail.com for assistance with questions, payments or orders.',
+      'You can use the support options provided throughout the website. You can also email support@primeboostnigeria.com for assistance with questions, payments or orders.',
   },
 ];
 
