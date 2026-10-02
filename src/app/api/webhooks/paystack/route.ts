@@ -2,6 +2,29 @@ import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+// Helper to log webhook event to DB (fire-and-forget, never throws)
+async function logWebhookEvent(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  eventType: string,
+  data: Record<string, unknown>,
+  status: 'processed' | 'skipped' | 'failed',
+  errorMessage?: string
+) {
+  try {
+    await supabase.from('paystack_webhook_events').insert({
+      event_type: eventType,
+      reference: (data?.reference as string) || null,
+      email: (data?.customer as { email?: string })?.email || null,
+      amount_kobo: typeof data?.amount === 'number' ? data.amount : null,
+      status,
+      payload: data,
+      error_message: errorMessage || null,
+    });
+  } catch (logErr) {
+    console.error('Failed to log webhook event:', logErr);
+  }
+}
+
 export async function POST(req: NextRequest) {
   // Read raw body for signature verification
   const body = await req.text();
@@ -29,28 +52,40 @@ export async function POST(req: NextRequest) {
   }
 
   const event = JSON.parse(body);
+  const supabase = await createClient();
 
   try {
     switch (event.event) {
       case 'charge.success':
         await handleChargeSuccess(event.data);
+        await logWebhookEvent(supabase, event.event, event.data, 'processed');
         break;
 
       case 'transfer.success':
         await handleTransferSuccess(event.data);
+        await logWebhookEvent(supabase, event.event, event.data, 'processed');
         break;
 
       case 'transfer.failed':
         await handleTransferFailed(event.data);
+        await logWebhookEvent(supabase, event.event, event.data, 'processed');
         break;
 
       default:
-        // Acknowledge all other events without processing
+        // Log unhandled events as skipped
+        await logWebhookEvent(supabase, event.event, event.data || {}, 'skipped');
         break;
     }
   } catch (err) {
     // Log but still return 200 — Paystack should not retry for processing errors
     console.error('Paystack webhook processing error:', err);
+    await logWebhookEvent(
+      supabase,
+      event.event,
+      event.data || {},
+      'failed',
+      err instanceof Error ? err.message : String(err)
+    );
   }
 
   // Always return 200 so Paystack does not retry
