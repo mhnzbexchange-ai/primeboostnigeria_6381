@@ -204,8 +204,8 @@ export default function DashboardRecentOrders() {
           <p className="text-muted-foreground text-sm">Loading orders...</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-1 px-1">
+          <table className="w-full min-w-[720px] text-sm">
             <thead>
               <tr className="border-b border-border">
                 {['Order ID', 'Platform', 'Service', 'Qty', 'Amount', 'Progress', 'Status', 'Date', ''].map((col) => (
@@ -259,7 +259,7 @@ export default function DashboardRecentOrders() {
                     <span className="text-xs text-muted-foreground">{formatDate(order.started_at)}</span>
                   </td>
                   <td className="py-3">
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
                       <a
                         href={order.target_url?.startsWith('http') ? order.target_url : `https://${order.target_url}`}
                         target="_blank"

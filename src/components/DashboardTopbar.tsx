@@ -12,13 +12,7 @@ interface DashboardTopbarProps {
   isAdmin?: boolean;
 }
 
-const notifications = [
-  { id: 'notif-001', title: 'Order #ORD-7821 completed', time: '2 mins ago', read: false, type: 'success' },
-  { id: 'notif-002', title: 'Wallet funded — ₦5,000 added', time: '1 hr ago', read: false, type: 'wallet' },
-  { id: 'notif-003', title: 'Referral bonus — ₦500 earned', time: '3 hrs ago', read: false, type: 'referral' },
-  { id: 'notif-004', title: 'Order #ORD-7819 is processing', time: '5 hrs ago', read: true, type: 'info' },
-  { id: 'notif-005', title: 'New promo: 20% off Instagram services', time: '1 day ago', read: true, type: 'promo' },
-];
+const notifications: { id: string; title: string; time: string; read: boolean; type: string }[] = [];
 
 export default function DashboardTopbar({ onMenuClick, isAdmin = false }: DashboardTopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
@@ -52,12 +46,12 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
   };
 
   return (
-    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 lg:px-6 flex-shrink-0 relative z-30">
+    <header className="h-16 bg-card border-b border-border flex items-center justify-between gap-2 px-3 sm:px-4 lg:px-6 flex-shrink-0 relative z-30">
       {/* Left */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+          className="lg:hidden flex h-11 w-11 items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground"
           aria-label="Open menu"
         >
           <Menu size={20} />
@@ -82,7 +76,8 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
               setNotifOpen(!notifOpen);
               setProfileOpen(false);
             }}
-            className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+            aria-label="Notifications"
+            className="relative flex h-11 w-11 items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
             <Bell size={20} />
             {unreadCount > 0 && (
@@ -91,13 +86,18 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-card animate-slide-down z-50">
+            <div className="fixed left-3 right-3 top-16 mt-2 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:w-80 bg-card border border-border rounded-xl shadow-card animate-slide-down z-50">
               <div className="flex items-center justify-between p-4 border-b border-border">
                 <h3 className="font-semibold text-sm">Notifications</h3>
                 <span className="badge-base status-pending">{unreadCount} new</span>
               </div>
 
               <div className="max-h-72 overflow-y-auto scrollbar-gold">
+                {notifications.length === 0 && (
+                  <p className="p-6 text-center text-xs text-muted-foreground">
+                    No notifications yet. Order and wallet updates will appear in your dashboard.
+                  </p>
+                )}
                 {notifications.map((notif) => (
                   <div
                     key={notif.id}
@@ -120,9 +120,9 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
               </div>
 
               <div className="p-3 text-center">
-                <button className="text-xs text-primary hover:underline">
-                  View all notifications
-                </button>
+                <Link href="/support-center" onClick={() => setNotifOpen(false)} className="text-xs text-primary hover:underline">
+                  Need help? Visit Support
+                </Link>
               </div>
             </div>
           )}
@@ -135,7 +135,8 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
               setProfileOpen(!profileOpen);
               setNotifOpen(false);
             }}
-            className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors"
+            className="flex items-center gap-2 p-1.5 min-h-[44px] rounded-lg hover:bg-muted transition-colors"
+            aria-label="Account menu"
           >
             <div className="w-8 h-8 rounded-full gold-gradient-bg flex items-center justify-center text-xs font-bold text-primary-foreground">
               {initials}

@@ -250,8 +250,8 @@ export default function ReferralContent() {
           {/* Link display */}
           <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
             <p className="text-xs font-semibold text-muted-foreground mb-2">Share this link to earn commissions</p>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono text-primary truncate">
+            <div className="flex items-center gap-2 min-w-0">
+              <code className="flex-1 min-w-0 text-xs font-mono text-primary truncate">
                 {loading ? 'Loading your link...' : (stats.link || 'No referral link available')}
               </code>
             </div>
@@ -263,7 +263,7 @@ export default function ReferralContent() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-3">
+          <div className="flex flex-col min-[400px]:flex-row gap-3">
             <button
               onClick={handleCopy}
               disabled={!stats.link || loading}

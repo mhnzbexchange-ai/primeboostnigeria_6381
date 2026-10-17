@@ -885,7 +885,7 @@ export default function OrderFormWizard() {
       <div className="flex items-center mb-8">
         {steps.map((step, index) => (
           <React.Fragment key={`step-${step.id}`}>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center min-w-0">
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
                   currentStep > step.id
@@ -902,7 +902,7 @@ export default function OrderFormWizard() {
               </div>
 
               <span
-                className={`text-[10px] mt-1.5 font-semibold whitespace-nowrap ${
+                className={`text-[10px] mt-1.5 font-semibold text-center sm:whitespace-nowrap ${
                   currentStep === step.id
                     ? 'text-primary' :'text-muted-foreground'
                 }`}
@@ -913,7 +913,7 @@ export default function OrderFormWizard() {
 
             {index < steps.length - 1 && (
               <div
-                className={`flex-1 h-0.5 mx-2 mb-4 rounded-full ${
+                className={`flex-1 h-0.5 mx-1 sm:mx-2 mb-4 rounded-full ${
                   currentStep > step.id
                     ? 'gold-gradient-bg' :'bg-border'
                 }`}
@@ -1401,7 +1401,7 @@ export default function OrderFormWizard() {
                     </span>
 
                     <span
-                      className={`font-semibold text-right truncate max-w-[220px] ${
+                      className={`font-semibold text-right break-words min-w-0 max-w-[60%] sm:max-w-[220px] ${
                         item.mono
                           ? 'font-mono text-xs text-primary' :''
                       }`}

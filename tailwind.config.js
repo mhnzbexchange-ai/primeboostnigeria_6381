@@ -36,6 +36,10 @@ module.exports = {
         border: 'var(--border)',
         input: 'var(--input)',
         ring: 'var(--ring)',
+        navy: {
+          DEFAULT: 'var(--navy)',
+          soft: 'var(--navy-soft)',
+        },
       },
       borderRadius: {
         DEFAULT: 'var(--radius)',
@@ -57,15 +61,15 @@ module.exports = {
         'scale-in': 'scaleIn 0.2s ease-out',
       },
       backgroundImage: {
-        'gold-gradient': 'linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #F5C842 100%)',
-        'card-gradient': 'linear-gradient(145deg, #161616 0%, #0F0F0F 100%)',
-        'hero-gradient': 'radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.15) 0%, rgba(10,10,10,0) 70%)',
+        'gold-gradient': 'linear-gradient(135deg, #1D4ED8 0%, #2F6FEB 100%)',
+        'card-gradient': 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFD 100%)',
+        'hero-gradient': 'linear-gradient(180deg, #F3F6FB 0%, #FFFFFF 100%)',
       },
       boxShadow: {
-        'gold': '0 0 20px rgba(212, 175, 55, 0.3), 0 0 40px rgba(212, 175, 55, 0.1)',
-        'gold-sm': '0 0 10px rgba(212, 175, 55, 0.2)',
-        'gold-lg': '0 0 40px rgba(212, 175, 55, 0.4), 0 0 80px rgba(212, 175, 55, 0.15)',
-        'card': '0 4px 24px rgba(0, 0, 0, 0.4)',
+        'gold': '0 4px 16px rgba(11, 31, 75, 0.10)',
+        'gold-sm': '0 1px 2px rgba(11, 31, 75, 0.06)',
+        'gold-lg': '0 12px 32px rgba(11, 31, 75, 0.14)',
+        'card': '0 4px 16px rgba(11, 31, 75, 0.08)',
       },
     },
   },
