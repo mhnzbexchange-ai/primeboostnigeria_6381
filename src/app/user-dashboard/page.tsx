@@ -22,9 +22,9 @@ export default function UserDashboardPage() {
       {/* Silently updates last_seen for this authenticated user */}
       <LastSeenUpdater />
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold">Dashboard</h1>
 
             <p className="text-sm text-muted-foreground mt-0.5">
               Welcome back, {loading ? '...' : firstName} 👋 Here's what's happening.

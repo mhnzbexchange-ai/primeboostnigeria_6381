@@ -207,7 +207,7 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
       {/* Mobile sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col
+          fixed inset-y-0 left-0 z-50 w-64 max-w-[85vw] bg-card border-r border-border flex flex-col
           sidebar-transition lg:hidden
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
@@ -219,7 +219,8 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
           </div>
           <button
             onClick={onMobileClose}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+            aria-label="Close menu"
+            className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground"
           >
             <X size={18} />
           </button>
@@ -235,7 +236,7 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
                   href={item.href}
                   onClick={onMobileClose}
                   className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
+                    flex min-h-[44px] items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
                     ${active ? 'nav-link-active' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}
                   `}
                 >

@@ -33,14 +33,14 @@ export default function AppLayout({ children, isAdmin = false }: AppLayoutProps)
       />
 
       {/* Main content */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <DashboardTopbar
           onMenuClick={() => setMobileSidebarOpen(true)}
           sidebarCollapsed={sidebarCollapsed}
           isAdmin={isAdmin}
         />
-        <main className="flex-1 overflow-y-auto scrollbar-gold">
-          <div className="max-w-screen-2xl mx-auto px-4 lg:px-6 xl:px-8 2xl:px-10 py-6">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-gold">
+          <div className="max-w-screen-2xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 2xl:px-10 py-4 sm:py-6">
             {children}
           </div>
         </main>

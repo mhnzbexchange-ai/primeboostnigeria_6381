@@ -178,7 +178,7 @@ export default function ServiceCatalogContent() {
 
         <Link
           href="/order-form"
-          className="btn-primary flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold"
+          className="btn-primary flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold"
         >
           Place Order
           <ArrowRight size={15} />
@@ -220,7 +220,7 @@ export default function ServiceCatalogContent() {
 
       {/* Search + Sort */}
       <div className="flex gap-3 flex-wrap">
-        <div className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2.5 flex-1 min-w-[200px]">
+        <div className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2.5 flex-1 min-w-0 basis-full sm:basis-0 sm:min-w-[200px]">
           <Search
             size={15}
             className="text-muted-foreground flex-shrink-0"
@@ -238,7 +238,7 @@ export default function ServiceCatalogContent() {
           />
         </div>
 
-        <div className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2.5">
+        <div className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2.5 w-full sm:w-auto">
           <SlidersHorizontal
             size={14}
             className="text-muted-foreground"
@@ -246,7 +246,7 @@ export default function ServiceCatalogContent() {
 
           <select
             aria-label="Sort services"
-            className="bg-transparent text-sm outline-none text-foreground cursor-pointer"
+            className="bg-transparent text-sm outline-none text-foreground cursor-pointer w-full"
             value={sortBy}
             onChange={(e) =>
               setSortBy(
@@ -289,7 +289,7 @@ export default function ServiceCatalogContent() {
               onClick={() =>
                 setSelectedPlatform(platform)
               }
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border ${
+              className={`min-h-[40px] px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border ${
                 selectedPlatform === platform
                   ? 'gold-gradient-bg text-primary-foreground border-transparent glow-gold-sm'
                   : 'border-border text-muted-foreground hover:text-foreground hover:border-primary/40 bg-transparent'
@@ -322,7 +322,7 @@ export default function ServiceCatalogContent() {
               onClick={() =>
                 setSelectedCategory(category)
               }
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`min-h-[36px] px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 selectedCategory === category
                   ? 'bg-primary/20 text-primary border border-primary/40' :'bg-muted/40 text-muted-foreground hover:text-foreground border border-transparent'
               }`}

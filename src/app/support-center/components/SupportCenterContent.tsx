@@ -199,12 +199,12 @@ export default function SupportCenterContent() {
       </a>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-muted/30 rounded-xl w-fit">
+      <div className="flex gap-1 p-1 bg-muted/30 rounded-xl w-full sm:w-fit">
         {(['contact', 'ticket'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 sm:flex-none min-h-[44px] px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all ${
               activeTab === tab
                 ? 'btn-primary rounded-lg' :'text-muted-foreground hover:text-foreground'
             }`}

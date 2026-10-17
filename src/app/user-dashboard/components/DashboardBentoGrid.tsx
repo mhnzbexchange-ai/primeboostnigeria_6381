@@ -284,7 +284,7 @@ export default function DashboardBentoGrid() {
                 WALLET BALANCE
               </p>
 
-              <div className="text-4xl font-extrabold tabular-nums gold-gradient-text">
+              <div className="text-3xl sm:text-4xl font-extrabold tabular-nums gold-gradient-text break-all">
                 {statsLoading
                   ? '...'
                   : `₦${stats.walletBalance.toLocaleString(
@@ -305,18 +305,18 @@ export default function DashboardBentoGrid() {
             </div>
           </div>
 
-          <div className="flex gap-2 relative z-10">
+          <div className="flex flex-wrap gap-2 relative z-10">
             <button
               onClick={() =>
                 setFundModalOpen(true)
               }
-              className="btn-primary flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
+              className="btn-primary flex min-h-[44px] flex-1 sm:flex-none items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
             >
               <Plus size={13} />
               Fund Wallet
             </button>
 
-            <button className="btn-outline-gold px-4 py-2 rounded-lg text-xs font-semibold">
+            <button className="btn-outline-gold min-h-[44px] flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold">
               Withdraw
             </button>
           </div>
