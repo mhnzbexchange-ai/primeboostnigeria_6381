@@ -301,6 +301,19 @@
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .catalog-fade-in {
+    animation: catalogFadeIn 0.22s ease-out both;
+  }
 }
 
 @layer components {
@@ -403,4 +416,9 @@
 @keyframes slideDown {
   from { transform: translateY(-10px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes catalogFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
