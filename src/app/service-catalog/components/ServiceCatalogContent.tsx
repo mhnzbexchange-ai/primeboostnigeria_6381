@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -59,6 +59,13 @@ export default function ServiceCatalogContent() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('popular');
+
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('platform');
+    if (requested && PLATFORMS.includes(requested)) {
+      setSelectedPlatform(requested);
+    }
+  }, []);
 
   const filtered = useMemo(() => {
     let result = [...ALL_SERVICES];

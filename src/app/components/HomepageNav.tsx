@@ -6,6 +6,7 @@ import AppLogo from '@/components/ui/AppLogo';
 import { Menu, X, ArrowRight } from 'lucide-react';
 
 const navItems = [
+  { label: 'Home', href: '/' },
   { label: 'Services', href: '/service-catalog' },
   { label: 'How It Works', href: '/#how-it-works' },
   { label: 'Pricing', href: '/service-catalog' },
@@ -57,7 +58,7 @@ export default function HomepageNav() {
             <Link
               key={item?.label}
               href={item?.href}
-              className="rounded-md px-3 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-navy"
+              className="rounded-md px-2.5 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             >
               {item?.label}
             </Link>

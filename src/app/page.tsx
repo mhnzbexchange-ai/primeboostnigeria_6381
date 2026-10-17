@@ -5,7 +5,6 @@ import HomepageTestimonials from './components/HomepageTestimonials';
 import HomepageFAQ from './components/HomepageFAQ';
 import HomepageFooter from './components/HomepageFooter';
 import HomepageNav from './components/HomepageNav';
-import HomepageStats from './components/HomepageStats';
 import HomepageHowItWorks from './components/HomepageHowItWorks';
 import HomepageReferral from './components/HomepageReferral';
 
@@ -19,20 +18,17 @@ export default function Homepage() {
       {/* Hero */}
       <HomepageHero />
 
-      {/* Trust / Benefits */}
-      <HomepageStats />
-
-      {/* Featured services */}
+      {/* Service discovery */}
       <HomepageServices />
 
       {/* How It Works */}
       <HomepageHowItWorks />
 
+      {/* Trust and customer confidence */}
+      <HomepageTestimonials />
+
       {/* Referral Program */}
       <HomepageReferral />
-
-      {/* Why PrimeBoost Nigeria */}
-      <HomepageTestimonials />
 
       {/* Frequently asked questions */}
       <HomepageFAQ />
