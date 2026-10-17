@@ -12,13 +12,7 @@ interface DashboardTopbarProps {
   isAdmin?: boolean;
 }
 
-const notifications = [
-  { id: 'notif-001', title: 'Order #ORD-7821 completed', time: '2 mins ago', read: false, type: 'success' },
-  { id: 'notif-002', title: 'Wallet funded — ₦5,000 added', time: '1 hr ago', read: false, type: 'wallet' },
-  { id: 'notif-003', title: 'Referral bonus — ₦500 earned', time: '3 hrs ago', read: false, type: 'referral' },
-  { id: 'notif-004', title: 'Order #ORD-7819 is processing', time: '5 hrs ago', read: true, type: 'info' },
-  { id: 'notif-005', title: 'New promo: 20% off Instagram services', time: '1 day ago', read: true, type: 'promo' },
-];
+const notifications: { id: string; title: string; time: string; read: boolean; type: string }[] = [];
 
 export default function DashboardTopbar({ onMenuClick, isAdmin = false }: DashboardTopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
@@ -98,6 +92,11 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
               </div>
 
               <div className="max-h-72 overflow-y-auto scrollbar-gold">
+                {notifications.length === 0 && (
+                  <p className="p-6 text-center text-xs text-muted-foreground">
+                    No notifications yet. Order and wallet updates will appear in your dashboard.
+                  </p>
+                )}
                 {notifications.map((notif) => (
                   <div
                     key={notif.id}
@@ -120,9 +119,9 @@ export default function DashboardTopbar({ onMenuClick, isAdmin = false }: Dashbo
               </div>
 
               <div className="p-3 text-center">
-                <button className="text-xs text-primary hover:underline">
-                  View all notifications
-                </button>
+                <Link href="/support-center" onClick={() => setNotifOpen(false)} className="text-xs text-primary hover:underline">
+                  Need help? Visit Support
+                </Link>
               </div>
             </div>
           )}

@@ -1,131 +1,75 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, Zap, CreditCard, BarChart2, MessageCircle, Lock } from 'lucide-react';
-import Icon from '@/components/ui/AppIcon';
-
+import { ShieldCheck, Zap, CreditCard, BarChart2, MessageCircle, UserCog } from 'lucide-react';
 
 const benefits = [
   {
-    id: 'secure',
+    id: 'info',
     icon: ShieldCheck,
-    title: 'Secure & Reliable',
-    description: 'Your account security comes first. We never ask for your social media password.',
-    color: 'text-green-400',
-    bg: 'bg-green-400/8 border-green-400/20',
-    span: 'md:col-span-2',
-  },
-  {
-    id: 'fast',
-    icon: Zap,
-    title: 'Fast Order Processing',
-    description: 'Orders are processed promptly after submission and payment confirmation.',
-    color: 'text-primary',
-    bg: 'bg-primary/8 border-primary/20',
-    span: '',
+    title: 'Clear service information',
+    description: 'Each service lists its requirements, minimum quantity and delivery estimate before you order.',
   },
   {
     id: 'pricing',
     icon: CreditCard,
-    title: 'Affordable Naira Pricing',
-    description: 'All services are priced in Nigerian Naira (₦) with no hidden fees.',
-    color: 'text-blue-400',
-    bg: 'bg-blue-400/8 border-blue-400/20',
-    span: '',
+    title: 'Transparent prices',
+    description: 'All services are priced in Nigerian Naira (₦). The total is shown before you confirm.',
+  },
+  {
+    id: 'ordering',
+    icon: Zap,
+    title: 'Straightforward ordering',
+    description: 'A short step-by-step form guides you from choosing a service to confirming your order.',
   },
   {
     id: 'tracking',
     icon: BarChart2,
-    title: 'Order Tracking',
-    description: 'Monitor your order status in real time from your personal dashboard.',
-    color: 'text-purple-400',
-    bg: 'bg-purple-400/8 border-purple-400/20',
-    span: '',
+    title: 'Order tracking',
+    description: 'Monitor the status of your orders from your personal dashboard.',
   },
   {
     id: 'support',
     icon: MessageCircle,
-    title: 'Customer Support',
-    description: 'Our support team is available to help with orders, payments, and questions.',
-    color: 'text-amber-400',
-    bg: 'bg-amber-400/8 border-amber-400/20',
-    span: '',
+    title: 'Accessible support',
+    description: 'Reach our team through the Help Centre for questions about orders and payments.',
   },
   {
-    id: 'nopassword',
-    icon: Lock,
-    title: 'No Password Required',
-    description: 'Place orders safely — we only need your public profile link, never your login.',
-    color: 'text-rose-400',
-    bg: 'bg-rose-400/8 border-rose-400/20',
-    span: 'md:col-span-2',
+    id: 'account',
+    icon: UserCog,
+    title: 'Convenient account management',
+    description: 'Manage your wallet, orders and referrals in one place.',
   },
 ];
 
 export default function HomepageStats() {
   return (
-    <section
-      className="relative overflow-hidden bg-secondary/15 py-24 sm:py-28"
-      aria-labelledby="benefits-heading"
-    >
-      {/* Background */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/6 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-accent/5 blur-3xl" />
-      </div>
-
-      <div className="relative mx-auto max-w-screen-xl px-4 lg:px-8">
-
-        {/* Heading */}
-        <div className="mx-auto mb-14 max-w-3xl text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
-            <ShieldCheck size={13} className="text-primary" aria-hidden="true" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-              Platform Benefits
-            </span>
-          </div>
-          <h2 id="benefits-heading" className="text-hero-md font-bold tracking-tight">
-            Why Choose{' '}
-            <span className="gold-gradient-text">PrimeBoost Nigeria</span>
+    <section className="bg-white py-16 sm:py-20" aria-labelledby="benefits-heading">
+      <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
+        <div className="mb-10 max-w-2xl">
+          <p className="section-label text-primary">Why PrimeBoost</p>
+          <h2 id="benefits-heading" className="mt-2 text-hero-md font-bold text-navy">
+            A platform built around clarity and simplicity
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-            A platform built around transparency, simplicity, and your security.
+          <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">
+            Everything you need to understand a service, place an order and follow its progress.
           </p>
         </div>
 
-        {/* Bento grid */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          {benefits?.map((benefit) => {
-            const Icon = benefit?.icon;
-            return (
-              <div
-                key={benefit?.id}
-                className={`group relative overflow-hidden rounded-2xl border ${benefit?.bg} p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${benefit?.span}`}
-              >
-                {/* Hover accent line */}
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-30" />
-
-                <div className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl border ${benefit?.bg}`}>
-                  <Icon size={20} className={benefit?.color} aria-hidden="true" />
-                </div>
-
-                <h3 className="mb-2 text-sm font-bold text-foreground">{benefit?.title}</h3>
-                <p className="text-[13px] leading-6 text-muted-foreground">{benefit?.description}</p>
-              </div>
-            );
-          })}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {benefits?.map((b) => (
+            <div
+              key={b?.id}
+              className="rounded-xl border border-border bg-white p-6 transition-shadow duration-200 hover:shadow-md"
+            >
+              <span className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-primary">
+                <b.icon size={20} aria-hidden="true" />
+              </span>
+              <h3 className="text-sm font-bold text-navy">{b?.title}</h3>
+              <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">{b?.description}</p>
+            </div>
+          ))}
         </div>
-
-        {/* Active users strip */}
-        <div className="mt-10 flex items-center justify-center gap-3 rounded-2xl border border-green-500/20 bg-green-500/5 px-6 py-4">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-50" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-400" />
-          </span>
-          <span className="text-sm font-bold text-green-400">10,000+</span>
-          <span className="text-sm font-medium text-muted-foreground">registered users on the platform</span>
-        </div>
-
       </div>
     </section>
   );

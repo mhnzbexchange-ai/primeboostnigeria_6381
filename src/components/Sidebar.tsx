@@ -38,11 +38,11 @@ interface SidebarProps {
 
 const userNavItems = [
   { href: '/user-dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: null },
-  { href: '/service-catalog', icon: Package, label: 'Services', badge: null },
   { href: '/order-form', icon: ShoppingCart, label: 'New Order', badge: null },
-  { href: '/user-dashboard', icon: History, label: 'Order History', badge: null },
-  { href: '/user-dashboard', icon: Wallet, label: 'Wallet', badge: null },
-  { href: '/referrals', icon: Gift, label: 'Referrals', badge: null },
+  { href: '/service-catalog', icon: Package, label: 'Services', badge: null },
+  { href: '/user-dashboard#orders', icon: History, label: 'My Orders', badge: null },
+  { href: '/user-dashboard#wallet', icon: Wallet, label: 'Wallet', badge: null },
+  { href: '/referrals', icon: Gift, label: 'Referral Programme', badge: null },
   { href: '/payouts', icon: ArrowDownToLine, label: 'Payouts', badge: null },
   { href: '/support-center', icon: HeadphonesIcon, label: 'Support', badge: null },
   { href: '/profile-settings', icon: Settings, label: 'Settings', badge: null },
@@ -93,8 +93,10 @@ export default function Sidebar({ collapsed, onCollapse, mobileOpen, onMobileClo
   };
 
   const isActive = (href: string) => {
-    if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
+    const base = href.split('#')[0];
+    if (base === '/') return pathname === '/';
+    if (href.includes('#')) return false;
+    return pathname.startsWith(base);
   };
 
   const UserProfile = ({ showEmail = true }: { showEmail?: boolean }) => (
