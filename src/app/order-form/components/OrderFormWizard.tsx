@@ -516,8 +516,17 @@ export default function OrderFormWizard() {
    * ============================================================
    */
   const onSubmit = async (data: OrderFormData) => {
+    // Never place an order or touch the wallet before the final
+    // review step. Earlier steps only advance via the Continue button.
     if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+      handleNext();
+      return;
+    }
+
+    if (loading) return;
+
+    if (!data.serviceId || !data.url || !selectedService) {
+      toast.error('Please complete all order details before submitting.');
       return;
     }
 
@@ -1928,6 +1937,7 @@ export default function OrderFormWizard() {
 
           {currentStep < 4 ? (
             <button
+              key="continue-btn"
               type="button"
               onClick={handleNext}
               className="btn-primary flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold"
@@ -1937,6 +1947,7 @@ export default function OrderFormWizard() {
             </button>
           ) : (
             <button
+              key="submit-order-btn"
               type="submit"
               disabled={
                 loading ||
