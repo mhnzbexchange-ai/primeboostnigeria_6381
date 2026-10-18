@@ -40,6 +40,10 @@ module.exports = {
           DEFAULT: 'var(--navy)',
           soft: 'var(--navy-soft)',
         },
+        gold: {
+          DEFAULT: 'var(--gold)',
+          soft: 'var(--gold-soft)',
+        },
       },
       borderRadius: {
         DEFAULT: 'var(--radius)',
