@@ -9,6 +9,7 @@ import AdminPlatformChart from './components/AdminPlatformChart';
 import AdminPaystackTransactions from './components/AdminPaystackTransactions';
 import AdminWebhookEvents from './components/AdminWebhookEvents';
 import AdminDisputeResolution from './components/AdminDisputeResolution';
+import AdminUserBalances from './components/AdminUserBalances';
 
 export default function AdminDashboardPage() {
   return (
@@ -59,6 +60,8 @@ export default function AdminDashboardPage() {
         </div>
 
         <AdminPaystackTransactions />
+
+        <AdminUserBalances />
 
         <AdminWebhookEvents />
 
