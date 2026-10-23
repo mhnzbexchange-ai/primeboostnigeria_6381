@@ -355,8 +355,7 @@ export const AuthProvider = ({
   const signInWithGoogle =
     async () => {
       const siteUrl =
-        process.env
-          .NEXT_PUBLIC_SITE_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
         (typeof window !== 'undefined'
           ? window.location.origin
           : '');
@@ -396,8 +395,7 @@ export const AuthProvider = ({
   const resendVerificationEmail =
     async (email: string) => {
       const siteUrl =
-        process.env
-          .NEXT_PUBLIC_SITE_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
         (typeof window !== 'undefined'
           ? window.location.origin
           : '');
