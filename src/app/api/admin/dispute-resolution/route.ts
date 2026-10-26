@@ -21,12 +21,10 @@ export async function GET() {
 
     const [transfersRes, failedRes, auditRes] = await Promise.all([
       supabase?.from('bank_transfer_payments')?.select(
-          'id, user_id, amount, reference, status, admin_note, proof_path, created_at, reviewed_at, user_profiles!bank_transfer_payments_user_id_fkey(full_name, email)'
-        )?.in('status', ['pending', 'rejected'])?.order('created_at', { ascending: false })?.limit(100),
+          'id, user_id, amount, reference, status, admin_note, proof_path, created_at, reviewed_at, user_profiles!bank_transfer_payments_user_id_fkey(full_name, email)' )?.in('status', ['pending', 'rejected'])?.order('created_at', { ascending: false })?.limit(100),
       supabase?.from('paystack_webhook_events')?.select('id, event_type, reference, email, amount_kobo, status, error_message, created_at')?.or('status.eq.failed,and(status.eq.skipped,event_type.eq.charge.success)')?.order('created_at', { ascending: false })?.limit(100),
       supabase?.from('manual_credit_audit_log')?.select(
-          'id, admin_email, user_email, amount, reference, credit_source, reason, outcome, created_at'
-        )?.order('created_at', { ascending: false })?.limit(100),
+          'id, admin_email, user_email, amount, reference, credit_source, reason, outcome, created_at' )?.order('created_at', { ascending: false })?.limit(100),
     ]);
 
     const firstError = transfersRes?.error || failedRes?.error || auditRes?.error;
