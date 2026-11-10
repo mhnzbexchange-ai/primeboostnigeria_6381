@@ -46,8 +46,8 @@ type OrderFormData = {
  * ============================================================
  */
 const BUSINESS_BANK_DETAILS = {
-  bankName: 'Kuda',
-  accountNumber: '3004047015',
+  bankName: 'Fairmoney Microfinance Bank LTD',
+  accountNumber: '5468543619',
   accountName: 'CHUKWUDI AWA MBA',
 };
 
